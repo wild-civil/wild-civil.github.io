@@ -8,7 +8,9 @@ subtitle: ''
 description: '可以平凡但不能平庸'
 keywords: wild-civil
 author: wild-civil
-language: en
+language: 
+  - en
+  - zh-CN
 timezone: ''
 
 # URL
@@ -110,8 +112,8 @@ deploy:
 
 
 #搜索功能
-search: 
-  path: search.xml
-  field: post
-  content: true
-  format: html
+# search: 
+#   path: search.xml
+#   field: post
+#   content: true
+#   format: html
