@@ -3,20 +3,25 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: civil's blog
-subtitle: ''
+title: 航的小世界 # civil's world
+subtitle: '早睡早期 锻炼身体'    # '我不想当菜狗😤'
 description: '可以平凡但不能平庸'
 keywords: wild-civil
 author: wild-civil
 language: 
   - en
   - zh-CN
-timezone: ''
+timezone: 'Asia/Shanghai'
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: http://example.com
-permalink: :year/:month/:day/:title/
+url: https://wild-civil.github.io
+# permalink: :year/:month/:day/:title/
+permalink: post/:abbrlink.html # post为自定义前缀
+abbrlink:
+    alg: crc32   #算法： crc16(default) and crc32
+    rep: hex     #进制： dec(default) and hex
+
 permalink_defaults:
 pretty_urls:
   trailing_index: true # Set to false to remove trailing 'index.html' from permalinks
@@ -110,10 +115,3 @@ deploy:
   repository: https://github.com/wild-civil/wild-civil.github.io.git
   branch: main
 
-
-#搜索功能
-# search: 
-#   path: search.xml
-#   field: post
-#   content: true
-#   format: html
