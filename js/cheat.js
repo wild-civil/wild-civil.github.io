@@ -1,4 +1,5 @@
-//动态标题
+//来源 https://haiyong.site/post/22e1d5da.html
+//动态标题 
 var OriginTitile = document.title;
 var titleTime;
 document.addEventListener('visibilitychange', function () {
