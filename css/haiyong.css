@@ -302,7 +302,7 @@ div#category{
 
 [data-theme="dark"]
   #aside-content .card-widget{
-      background: rgba(0, 0, 0, 0.5)!important;
+      background: rgba(0, 0, 0, 0.4)!important;
     }
 [data-theme="dark"]
   div#post{
