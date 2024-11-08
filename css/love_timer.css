@@ -1,0 +1,26 @@
+.icon {
+	width: 3em;
+	height: 3em;
+	vertical-align: middle;
+	fill: currentColor;
+	overflow: hidden;
+}
+@media screen and (max-width: 576px)  {
+	.nav-search-btn {
+		right: 0!important;
+	}
+}
+.couple {
+	text-align: center;
+}
+.info .pic,.couple .pic {
+	border-radius: 50%;
+	width: 5rem;
+	background: #fff;
+	padding: 2px;
+}
+.couple-love {
+	width: 35px;
+	margin: 20px 0;
+	animation: heartbeat 1.33s ease-in-out infinite;
+}

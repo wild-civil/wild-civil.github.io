@@ -1,0 +1,95 @@
+
+
+
+/* ----------------------------------  鼠标样式 -------------------------------------   */
+#cursor {
+  position: fixed;
+  width: 16px;
+  height: 16px;
+  /* 这里改变跟随的底色 */
+  background: rgb(57, 197, 187);
+  border-radius: 8px;
+  opacity: 0.25;
+  z-index: 10086;
+  pointer-events: none;
+  transition: 0.2s ease-in-out;
+  transition-property: background, opacity, transform;
+}
+
+
+#cursor.hidden {
+  opacity: 0;
+}
+
+#cursor.hover {
+  opacity: 0.1;
+  transform: scale(2.5);
+  -webkit-transform: scale(2.5);
+  -moz-transform: scale(2.5);
+  -ms-transform: scale(2.5);
+  -o-transform: scale(2.5);
+}
+
+#cursor.active {
+  opacity: 0.5;
+  transform: scale(0.5);
+  -webkit-transform: scale(0.5);
+  -moz-transform: scale(0.5);
+  -ms-transform: scale(0.5);
+  -o-transform: scale(0.5);
+}
+
+
+
+
+
+
+/* ---------------------------------- love-timer ------------------------------------  */
+/* 如果需要隐藏 .item-headline 内的 i 和 span */
+/* .card-widget.couple-widget .item-headline i,
+.card-widget.couple-widget .item-headline span {
+  display: none;
+} */
+/* love-timer 去边 */
+.couple-widget  .item-headline span {
+  display: none;
+}
+
+/* .couple-widget   */
+
+#aside-content .card-widget.couple-widget {
+  padding: 8px !important; /* 强制覆盖 */
+}
+
+
+/* 默认白天模式，标题字体颜色为黑色 */
+.couple-title {
+  color: black !important;
+}
+
+/* 夜间模式，标题字体颜色为白色 */
+[data-theme='dark'] .couple-title {
+  /* color: white !important; */
+  color: rgba(255,255,255,0.7) !important;
+}
+
+
+
+/* -------------------------------------------------------------------------------------*/
+
+
+
+
+/* ---------------------------------- moment-timer ----------  */
+/* 如果需要隐藏 .item-headline 内的 i 和 span */
+/* .moment-widget  .item-headline span {
+  display: none;
+} */
+
+/* .couple-widget   */
+
+#aside-content .card-widget.moment-widget {
+  padding: 8px !important; /* 强制覆盖 */
+}
+
+

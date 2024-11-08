@@ -1,0 +1,383 @@
+svg.icon {
+  width: 1.28em;
+  height: 1.28em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}
+
+/* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
+@font-face {
+  font-family: "iconfont"; /* Project id 3277826 */
+  /* Color fonts */
+  src: 
+       url('//at.alicdn.com/t/c/font_3277826_8yxh6bi02oe.woff2?t=1689481318447') format('woff2'),
+       url('//at.alicdn.com/t/c/font_3277826_8yxh6bi02oe.woff?t=1689481318447') format('woff'),
+       url('//at.alicdn.com/t/c/font_3277826_8yxh6bi02oe.ttf?t=1689481318447') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-DVLINK_kejifengxian:before {
+  content: "\e623";
+}
+
+.icon-mianfei:before {
+  content: "\e8b1";
+}
+
+.icon-lianjie:before {
+  content: "\e6d7";
+}
+
+.icon-google:before {
+  content: "\ea0c";
+}
+
+.icon-twitter:before {
+  content: "\e602";
+}
+
+.icon-wechat:before {
+  content: "\e603";
+}
+
+.icon-weibo:before {
+  content: "\e605";
+}
+
+.icon-qq:before {
+  content: "\e606";
+}
+
+.icon-github3:before {
+  content: "\e60c";
+}
+
+.icon-csdn1:before {
+  content: "\e60d";
+}
+
+.icon-Facebook:before {
+  content: "\e60e";
+}
+
+.icon-alipay:before {
+  content: "\e60f";
+}
+
+.icon-pinterest:before {
+  content: "\e611";
+}
+
+.icon-linkedin:before {
+  content: "\e613";
+}
+
+.icon-tumblr:before {
+  content: "\e615";
+}
+
+.icon-zhexiantu:before {
+  content: "\e601";
+}
+
+.icon-iconfontzhizuobiaozhunbduan36:before {
+  content: "\e6e9";
+}
+
+.icon-gongju:before {
+  content: "\e60a";
+}
+
+.icon-biaoqian:before {
+  content: "\e669";
+}
+
+.icon-fengche:before {
+  content: "\e610";
+}
+
+.icon-xiangzi:before {
+  content: "\e61e";
+}
+
+.icon-wenzhanglan:before {
+  content: "\e616";
+}
+
+.icon-guidang:before {
+  content: "\e6fb";
+}
+
+.icon-fenlei:before {
+  content: "\f7fd";
+}
+
+.icon-chengbao:before {
+  content: "\e608";
+}
+
+.icon-wangluoke:before {
+  content: "\e612";
+}
+
+.icon-aixin:before {
+  content: "\e741";
+}
+
+.icon-pc:before {
+  content: "\e8d2";
+}
+
+.icon-pc1:before {
+  content: "\e629";
+}
+
+.icon-Javascript-icon-02:before {
+  content: "\e633";
+}
+
+.icon-html:before {
+  content: "\e632";
+}
+
+.icon-java:before {
+  content: "\e639";
+}
+
+.icon-python:before {
+  content: "\e690";
+}
+
+.icon-logo:before {
+  content: "\e600";
+}
+
+.icon-youxishoubing:before {
+  content: "\e631";
+}
+
+.icon-csdn:before {
+  content: "\e638";
+}
+
+.icon-shejiaotubiao-46:before {
+  content: "\e64b";
+}
+
+.icon-weixin:before {
+  content: "\e607";
+}
+
+.icon-bilibili:before {
+  content: "\e609";
+}
+
+.icon-juejin:before {
+  content: "\e60b";
+}
+
+svg.icon.festival-decoration {
+    width: 3em;
+    height: 3em;
+    left: 2em;
+    margin-bottom: -3em;
+    display: block;
+    z-index: 100;
+    position: relative;
+    -webkit-animation: sway 1s infinite ease-in-out alternate;
+    animation: sway 1s infinite ease-in-out alternate;
+}
+@-webkit-keyframes sway {
+  0% {
+    -webkit-transform: rotate(20deg);
+    transform-origin: center top;
+  }
+  100% {
+    -webkit-transform: rotate(-20deg);
+    transform-origin: center top;
+  }
+}
+@keyframes sway {
+  0% {
+    transform: rotate(20deg);
+    transform-origin: center top;
+  }
+  100% {
+    transform: rotate(-20deg);
+    transform-origin: center top;
+  }
+}
+
+/* 页脚蝴蝶振翅动画 */
+.copyright svg{
+  animation:butterfly 1s linear infinite alternate;
+}
+@keyframes butterfly {
+  from {
+    transform:rotateY(70deg);
+  }
+  to {
+    transform:rotateY(0deg);
+  }
+}
+
+
+h1#site-title {
+  font-family: 'Candyhome', sans-serif;
+  /*font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Lato, Roboto, "PingFang SC", "STZhongsong", "Lantinghei SC", sans-serif;*/
+}
+
+body {
+  font-family: 'ZhuZiAWan', sans-serif;
+  font-size: 15px;
+}
+
+
+
+/* 首页文章卡片 */
+#recent-posts > .recent-post-item{
+    background:rgba(255, 255, 255, 0.7);
+}
+/* 首页侧栏卡片 */
+.card-widget{
+  background:rgba(255, 255, 255, 0.7)!important;
+}
+/* 文章页面正文背景 */
+div#post{
+  background: rgba(255, 255, 255, 0.7);
+}
+/* 分页页面 */
+div#page{
+  background: rgba(255, 255, 255, 0.7);
+}
+/* 归档页面 */
+div#archive{
+  background: rgba(255, 255, 255, 0.7);
+}
+/* 标签页面 */
+div#tag{
+  background: rgba(255, 255, 255, 0.7);
+}
+/* 分类页面 */
+div#category{
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* 页脚透明 */
+#footer{
+  background: transparent!important;
+}
+/* 页脚黑色透明玻璃效果移除 */
+#footer::before{
+    background: transparent!important;
+  }
+/* 头 顶 图透明 */
+/*#page-header{
+  background: transparent!important;
+}*/
+/*top-img黑色透明玻璃效果移除，不建议加，除非你执着于完全一图流*/
+#page-header.post-bg:before {
+  background-color: transparent!important;
+}
+/*夜间模式伪类遮罩层透明*/
+[data-theme="dark"]
+  #recent-posts > .recent-post-item{
+      background: rgba(0, 0, 0, 0.2)!important;
+    }
+
+[data-theme="dark"]
+  #footer::before{
+      background: transparent!important;
+    }
+[data-theme="dark"]
+  #page-header::before{
+    background: transparent!important;
+    }
+
+[data-theme="dark"]
+  #aside-content .card-widget{
+      background: rgba(0, 0, 0, 0.4)!important;
+    }
+[data-theme="dark"]
+  div#post{
+    background: rgba(0, 0, 0, 0.5)!important;
+    }
+[data-theme="dark"]
+  div#page{
+    background: rgba(0, 0, 0, 0.5)!important;
+    }
+[data-theme="dark"]
+  div#archive{
+    background: rgba(0, 0, 0, 0.5)!important;
+    }
+[data-theme="dark"]
+  div#tag{
+    background: rgba(0, 0, 0, 0.5)!important;
+    }
+[data-theme="dark"]
+  div#category{
+    background: rgba(0, 0, 0, 0.5)!important;
+    }
+
+.read-mode #recent-posts > .recent-post-item{
+      background: rgba(158, 204, 171, 0.5)!important;
+    }
+
+.read-mode #aside-content .card-widget{
+      background: rgba(158, 204, 171, 0.5)!important;
+    }
+.read-mode div#post{
+    background: rgba(158, 204, 171, 0.5)!important;
+    }
+.read-mode div#page{
+    background: rgba(158, 204, 171, 0.5)!important;
+    }
+.read-mode div#archive{
+    background: rgba(158, 204, 171, 0.5)!important;
+    }
+.read-mode div#tag{
+    background: rgba(158, 204, 171, 0.5)!important;
+    }
+.read-mode div#category{
+    background: rgba(158, 204, 171, 0.5)!important;
+    }
+
+[data-theme="dark"]
+  .read-mode #aside-content .card-widget{
+        background: rgba(0, 0, 0, 0.5)!important;
+        color: #ffffff;
+      }
+[data-theme="dark"]
+  .read-mode div#post{
+      background: rgba(0, 0, 0, 0.5)!important;
+      color: #ffffff;
+      }
+[data-theme="dark"]
+  .read-mode div#page{
+      background: rgba(0, 0, 0, 0.5)!important;
+      color: #ffffff;
+      }
+[data-theme="dark"]
+  .read-mode div#archive{
+      background: rgba(0, 0, 0, 0.5)!important;
+      color: #ffffff;
+      }
+[data-theme="dark"]
+  .read-mode div#tag{
+      background: rgba(0, 0, 0, 0.5)!important;
+      color: #ffffff;
+      }
+[data-theme="dark"]
+  .read-mode div#category{
+      background: rgba(0, 0, 0, 0.5)!important;
+      color: #ffffff;
+      }
+
