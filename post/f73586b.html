@@ -438,6 +438,26 @@
             document.querySelector('.toweek-num').innerText = weekPercentage + "%";
             document.querySelector('.toweek-item').style.height = weekPercentage + "%";
 
+            # // 本周剩余百分比
+            # const totalSecondsWeek = 7 * 24 * 3600;
+            # const currentDayOfWeek = (now.getDay() === 0) ? 6 : now.getDay() - 1; // 将 Sunday (0) 变为 6，其他日期减去 1
+            # const currentSecondsWeek = (currentDayOfWeek * 24 * 3600) + currentSecondsToday;
+            # const weekPercentage = calculatePercentage(currentSecondsWeek, totalSecondsWeek);
+            # document.querySelector('.toweek-num').innerText = weekPercentage + "%";
+            # document.querySelector('.toweek-item').style.height = weekPercentage + "%";
+
+            # const totalSecondsWeek = 7 * 24 * 3600;
+            # let currentDay = now.getDay();
+            # currentDay = (currentDay === 0) ? 7 : currentDay; // 如果是星期天，将其转换为7
+            # const currentSecondsWeek = (currentDay - 1) * 24 * 3600 + currentSecondsToday; // 以周一为每周的第一天
+            # const weekPercentage = calculatePercentage(currentSecondsWeek, totalSecondsWeek);
+            # document.querySelector('.toweek-num').innerText = weekPercentage + "%";
+            # document.querySelector('.toweek-item').style.height = weekPercentage + "%";
+
+
+
+
+
             // 本月剩余百分比
             const totalDaysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
             const totalSecondsMonth = totalDaysInMonth * 24 * 3600;
