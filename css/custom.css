@@ -1,6 +1,17 @@
 
 
 
+/*// 将公式字体大小设置为 1em */
+.mjx-chtml, .MathJax {
+  font-size: 110% !important;
+}
+
+/* .mjx-math {
+  font-size: 100% !important;
+  } */
+
+
+
 /* ----------------------------------  鼠标样式 -------------------------------------   */
 #cursor {
   position: fixed;
