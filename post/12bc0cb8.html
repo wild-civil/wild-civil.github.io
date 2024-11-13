@@ -1,0 +1,559 @@
+<!DOCTYPE html><html lang="[&quot;en&quot;,&quot;zh-CN&quot;,&quot;default&quot;]" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>IMU预积分 | 航の小世界</title><meta name="keywords" content="是微风 是晚霞 是心跳 时无可替代"><meta name="author" content="Civil"><meta name="copyright" content="Civil"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576777879808182838485868788899091929394959697989910010110210">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IMU预积分">
+<meta property="og:url" content="https://wild-civil.github.io/post/12bc0cb8.html">
+<meta property="og:site_name" content="航の小世界">
+<meta property="og:description" content="12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576777879808182838485868788899091929394959697989910010110210">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://youpai.hanvon.top/blog/article/Learing/FG/IMU_PRE/imu_pre_2.png">
+<meta property="article:published_time" content="2024-11-13T15:03:00.000Z">
+<meta property="article:modified_time" content="2024-11-13T15:38:05.612Z">
+<meta property="article:author" content="Civil">
+<meta property="article:tag" content="是微风 是晚霞 是心跳 时无可替代">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://youpai.hanvon.top/blog/article/Learing/FG/IMU_PRE/imu_pre_2.png"><link rel="shortcut icon" href="/images/dragon_and_knight.jpg"><link rel="canonical" href="https://wild-civil.github.io/post/12bc0cb8"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简"},
+  noticeOutdate: {"limitDay":800,"position":"top","messagePrev":"It has been","messageNext":"days since the last update, the content of the article may be outdated."},
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"limitCount":2000,"languages":{"author":"Author: Civil","link":"Link: ","source":"Source: 航の小世界","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source."}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'IMU预积分',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-11-13 23:38:05'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          const now = new Date()
+          const hour = now.getHours()
+          const isNight = hour <= 6 || hour >= 18
+          if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else if (t === 'light') activateLightMode()
+          else activateDarkMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/haiyong/haiyong_page.css"><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/tag.css"><link rel="stylesheet" href="/css/welcome.css?1"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/images/dragon_and_knight.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">航の小世界</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">IMU预积分</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-11-13T15:03:00.000Z" title="Created 2024-11-13 23:03:00">2024-11-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2024-11-13T15:38:05.612Z" title="Updated 2024-11-13 23:38:05">2024-11-13</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">3.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>15min</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="IMU预积分"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gtsam/navigation/PreintegrationParams.h&gt;</span>  <span class="comment">// 引入GTSAM中用于预积分参数的头文件</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gtsam/navigation/ImuFactor.h&gt;</span>  <span class="comment">// 引入IMU因子的头文件</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gtsam/nonlinear/LevenbergMarquardtOptimizer.h&gt;</span>  <span class="comment">// 引入Levenberg-Marquardt优化器，用于非线性优化</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gtsam/nonlinear/Values.h&gt;</span>  <span class="comment">// 引入GTSAM中的Values类，用于存储优化结果</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gtsam/slam/PriorFactor.h&gt;</span>  <span class="comment">// 引入GTSAM中的先验因子，用于定义先验约束</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gtsam/geometry/Pose3.h&gt;</span>  <span class="comment">// 引入GTSAM中的Pose3类，表示3D位姿</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gtsam/inference/Symbol.h&gt;</span>  <span class="comment">// 引入GTSAM中的符号类，便于标识变量</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gtsam/navigation/NavState.h&gt;</span>  <span class="comment">// 引入GTSAM中的NavState类，表示导航状态（位姿+速度）</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gtsam/slam/BetweenFactor.h&gt;</span>  <span class="comment">// 引入GTSAM中的BetweenFactor类，表示两个变量之间的约束</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span>  <span class="comment">// 引入标准输入输出库</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span>  <span class="comment">// 引入文件操作库</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sstream&gt;</span>  <span class="comment">// 引入字符串流库，用于处理CSV数据</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span>  <span class="comment">// 引入向量容器库</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cmath&gt;</span>  <span class="comment">// 引入数学库</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span>  <span class="comment">// 引入格式化输入输出库</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> gtsam;  <span class="comment">// 使用GTSAM命名空间</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;  <span class="comment">// 使用标准命名空间</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 加载来自CSV文件的AVP数据</span></span><br><span class="line">    <span class="function">ifstream <span class="title">file</span><span class="params">(<span class="string">&quot;avp_data.csv&quot;</span>)</span></span>;  <span class="comment">// 打开CSV文件</span></span><br><span class="line">    <span class="keyword">if</span> (!file.<span class="built_in">is_open</span>()) &#123;  <span class="comment">// 如果文件无法打开</span></span><br><span class="line">        cerr &lt;&lt; <span class="string">&quot;Unable to open the file!&quot;</span> &lt;&lt; endl;  <span class="comment">// 输出错误信息</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;  <span class="comment">// 返回错误代码</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定义用于存储数据的变量</span></span><br><span class="line">    vector&lt;Vector3&gt; euler_angles;  <span class="comment">// 存储欧拉角（滚转角、俯仰角、偏航角）</span></span><br><span class="line">    vector&lt;Vector3&gt; velocities;    <span class="comment">// 存储速度数据（X, Y, Z）</span></span><br><span class="line">    vector&lt;Vector3&gt; positions;     <span class="comment">// 存储位置数据（X, Y, Z）</span></span><br><span class="line">    vector&lt;<span class="type">double</span>&gt; time_intervals; <span class="comment">// 存储时间间隔（假设这里时间间隔为常数0.1秒）</span></span><br><span class="line"></span><br><span class="line">    string line;</span><br><span class="line">    <span class="comment">// 跳过CSV文件的表头（如果存在）</span></span><br><span class="line">    <span class="built_in">getline</span>(file, line);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 从CSV文件中读取数据</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="built_in">getline</span>(file, line)) &#123;</span><br><span class="line">        <span class="function">stringstream <span class="title">ss</span><span class="params">(line)</span></span>;  <span class="comment">// 使用字符串流解析每一行</span></span><br><span class="line">        string value;</span><br><span class="line">        vector&lt;<span class="type">double</span>&gt; row_data;</span><br><span class="line">        <span class="keyword">while</span> (<span class="built_in">getline</span>(ss, value, <span class="string">&#x27;,&#x27;</span>)) &#123;  <span class="comment">// 按照逗号分隔读取每个值</span></span><br><span class="line">            row_data.<span class="built_in">push_back</span>(<span class="built_in">stod</span>(value));  <span class="comment">// 转换为数字并存储</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 假设CSV列的顺序为：roll, pitch, yaw, velocity_x, velocity_y, velocity_z, pos_x, pos_y, pos_z, time_interval</span></span><br><span class="line">        euler_angles.<span class="built_in">emplace_back</span>(row_data[<span class="number">0</span>], row_data[<span class="number">1</span>], row_data[<span class="number">2</span>]);  <span class="comment">// 存储欧拉角</span></span><br><span class="line">        velocities.<span class="built_in">emplace_back</span>(row_data[<span class="number">3</span>], row_data[<span class="number">4</span>], row_data[<span class="number">5</span>]);    <span class="comment">// 存储速度</span></span><br><span class="line">        positions.<span class="built_in">emplace_back</span>(row_data[<span class="number">6</span>], row_data[<span class="number">7</span>], row_data[<span class="number">8</span>]);     <span class="comment">// 存储位置</span></span><br><span class="line">        time_intervals.<span class="built_in">emplace_back</span>(row_data[<span class="number">9</span>]); <span class="comment">// 存储时间间隔</span></span><br><span class="line">    &#125;</span><br><span class="line">    file.<span class="built_in">close</span>();  <span class="comment">// 关闭文件</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重力加速度和IMU参数</span></span><br><span class="line">    <span class="function">Vector3 <span class="title">gravity</span><span class="params">(<span class="number">0</span>, <span class="number">0</span>, <span class="number">-9.81</span>)</span></span>;  <span class="comment">// 定义重力加速度向量，z轴为-9.81 m/s²</span></span><br><span class="line">    <span class="keyword">auto</span> params = PreintegrationParams::<span class="built_in">MakeSharedU</span>(<span class="number">-9.81</span>);  <span class="comment">// 创建IMU预积分参数，使用重力加速度</span></span><br><span class="line">    params-&gt;accelerometerCovariance = I_3x3 * <span class="number">0.01</span>;  <span class="comment">// 设置加速度计噪声协方差（0.01）</span></span><br><span class="line">    params-&gt;gyroscopeCovariance = I_3x3 * <span class="number">0.01</span>;      <span class="comment">// 设置陀螺仪噪声协方差（0.01）</span></span><br><span class="line">    params-&gt;integrationCovariance = I_3x3 * <span class="number">0.01</span>;    <span class="comment">// 设置积分噪声协方差（0.01）</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// IMU偏置</span></span><br><span class="line">    gtsam::imuBias::ConstantBias prior_bias;  <span class="comment">// 假设IMU初始偏置为零</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建初始状态</span></span><br><span class="line">    <span class="function">Pose3 <span class="title">prior_pose</span><span class="params">(Rot3::RzRyRx(euler_angles[<span class="number">0</span>]), Point3(positions[<span class="number">0</span>].x(), positions[<span class="number">0</span>].y(), positions[<span class="number">0</span>].z()))</span></span>;  <span class="comment">// 初始位姿</span></span><br><span class="line">    Vector3 prior_velocity = velocities[<span class="number">0</span>];  <span class="comment">// 初始速度</span></span><br><span class="line">    <span class="function">NavState <span class="title">prior_state</span><span class="params">(prior_pose, prior_velocity)</span></span>;  <span class="comment">// 初始化导航状态</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 噪声模型</span></span><br><span class="line">    <span class="keyword">auto</span> pose_noise_model = noiseModel::Diagonal::<span class="built_in">Sigmas</span>((<span class="built_in">Vector</span>(<span class="number">6</span>) &lt;&lt; <span class="number">0.1</span>, <span class="number">0.1</span>, <span class="number">0.1</span>, <span class="number">0.3</span>, <span class="number">0.3</span>, <span class="number">0.3</span>).<span class="built_in">finished</span>());  <span class="comment">// 位姿噪声模型</span></span><br><span class="line">    <span class="keyword">auto</span> velocity_noise_model = noiseModel::Isotropic::<span class="built_in">Sigma</span>(<span class="number">3</span>, <span class="number">0.1</span>);  <span class="comment">// 速度噪声模型</span></span><br><span class="line">    <span class="keyword">auto</span> bias_noise_model = noiseModel::Isotropic::<span class="built_in">Sigma</span>(<span class="number">6</span>, <span class="number">0.1</span>);  <span class="comment">// 偏置噪声模型</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建因子图和初始估计容器</span></span><br><span class="line">    NonlinearFactorGraph graph;  <span class="comment">// 创建非线性因子图</span></span><br><span class="line">    Values initialEstimate;  <span class="comment">// 创建初始估计容器</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加先验因子（先验约束）</span></span><br><span class="line">    graph.<span class="built_in">add</span>(<span class="built_in">PriorFactor</span>&lt;Pose3&gt;(<span class="built_in">Symbol</span>(<span class="string">&#x27;x&#x27;</span>, <span class="number">0</span>), prior_pose, pose_noise_model));  <span class="comment">// 添加位姿先验</span></span><br><span class="line">    graph.<span class="built_in">add</span>(<span class="built_in">PriorFactor</span>&lt;Vector3&gt;(<span class="built_in">Symbol</span>(<span class="string">&#x27;v&#x27;</span>, <span class="number">0</span>), prior_velocity, velocity_noise_model));  <span class="comment">// 添加速度先验</span></span><br><span class="line">    graph.<span class="built_in">add</span>(<span class="built_in">PriorFactor</span>&lt;imuBias::ConstantBias&gt;(<span class="built_in">Symbol</span>(<span class="string">&#x27;b&#x27;</span>, <span class="number">0</span>), prior_bias, bias_noise_model));  <span class="comment">// 添加偏置先验</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加初始状态估计</span></span><br><span class="line">    initialEstimate.<span class="built_in">insert</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;x&#x27;</span>, <span class="number">0</span>), prior_pose);  <span class="comment">// 添加初始位姿</span></span><br><span class="line">    initialEstimate.<span class="built_in">insert</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;v&#x27;</span>, <span class="number">0</span>), prior_velocity);  <span class="comment">// 添加初始速度</span></span><br><span class="line">    initialEstimate.<span class="built_in">insert</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;b&#x27;</span>, <span class="number">0</span>), prior_bias);  <span class="comment">// 添加初始偏置</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建IMU预积分对象</span></span><br><span class="line">    <span class="function">PreintegratedImuMeasurements <span class="title">preintegrated</span><span class="params">(params, prior_bias)</span></span>;  <span class="comment">// 创建IMU预积分对象</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打开输出CSV文件，保存结果</span></span><br><span class="line">    <span class="function">ofstream <span class="title">output_file</span><span class="params">(<span class="string">&quot;pre_avp_data_2.csv&quot;</span>)</span></span>;</span><br><span class="line">    output_file &lt;&lt; <span class="string">&quot;roll,pitch,yaw,velocity_x,velocity_y,velocity_z,x,y,z,time_interval\n&quot;</span>;  <span class="comment">// 写入CSV表头</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 遍历IMU数据并进行处理</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">1</span>; i &lt; euler_angles.<span class="built_in">size</span>(); ++i) &#123;</span><br><span class="line">        <span class="type">double</span> dt = time_intervals[i];  <span class="comment">// 获取当前时间间隔</span></span><br><span class="line">        Vector3 measured_acc = velocities[i];   <span class="comment">// 使用速度作为加速度计数据的代理</span></span><br><span class="line">        Vector3 measured_omega = euler_angles[i];  <span class="comment">// 使用欧拉角作为陀螺仪数据的代理</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 对IMU数据进行积分</span></span><br><span class="line">        preintegrated.<span class="built_in">integrateMeasurement</span>(measured_acc, measured_omega, dt);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 每隔一段时间或者在关键帧处添加IMU因子</span></span><br><span class="line">        <span class="keyword">if</span> (i % <span class="number">10</span> == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 每10个步骤添加一个因子</span></span><br><span class="line">            <span class="function">Pose3 <span class="title">current_pose</span><span class="params">(Rot3::RzRyRx(euler_angles[i]), Point3(positions[i].x(), positions[i].y(), positions[i].z()))</span></span>;  <span class="comment">// 当前位姿</span></span><br><span class="line">            Vector3 current_velocity = velocities[i];  <span class="comment">// 当前速度</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 添加IMU因子</span></span><br><span class="line">            <span class="function">ImuFactor <span class="title">imu_factor</span><span class="params">(Symbol(<span class="string">&#x27;x&#x27;</span>, i - <span class="number">10</span>), Symbol(<span class="string">&#x27;v&#x27;</span>, i - <span class="number">10</span>),</span></span></span><br><span class="line"><span class="params"><span class="function">                Symbol(<span class="string">&#x27;x&#x27;</span>, i), Symbol(<span class="string">&#x27;v&#x27;</span>, i),</span></span></span><br><span class="line"><span class="params"><span class="function">                Symbol(<span class="string">&#x27;b&#x27;</span>, i - <span class="number">10</span>), preintegrated)</span></span>;</span><br><span class="line">            graph.<span class="built_in">add</span>(imu_factor);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 添加偏置演化作为之间的因子</span></span><br><span class="line">            <span class="keyword">auto</span> bias_between_noise = noiseModel::Isotropic::<span class="built_in">Sigma</span>(<span class="number">6</span>, <span class="number">0.01</span>);</span><br><span class="line">            graph.<span class="built_in">add</span>(<span class="built_in">BetweenFactor</span>&lt;imuBias::ConstantBias&gt;(<span class="built_in">Symbol</span>(<span class="string">&#x27;b&#x27;</span>, i - <span class="number">10</span>), <span class="built_in">Symbol</span>(<span class="string">&#x27;b&#x27;</span>, i), imuBias::<span class="built_in">ConstantBias</span>(), bias_between_noise));</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 更新初始估计</span></span><br><span class="line">            <span class="keyword">if</span> (initialEstimate.<span class="built_in">exists</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;x&#x27;</span>, i))) &#123;</span><br><span class="line">                initialEstimate.<span class="built_in">update</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;x&#x27;</span>, i), current_pose);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                initialEstimate.<span class="built_in">insert</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;x&#x27;</span>, i), current_pose);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (initialEstimate</span><br><span class="line"></span><br><span class="line">.<span class="built_in">exists</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;v&#x27;</span>, i))) &#123;</span><br><span class="line">                initialEstimate.<span class="built_in">update</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;v&#x27;</span>, i), current_velocity);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                initialEstimate.<span class="built_in">insert</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;v&#x27;</span>, i), current_velocity);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (initialEstimate.<span class="built_in">exists</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;b&#x27;</span>, i))) &#123;</span><br><span class="line">                initialEstimate.<span class="built_in">update</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;b&#x27;</span>, i), prior_bias);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                initialEstimate.<span class="built_in">insert</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;b&#x27;</span>, i), prior_bias);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用Levenberg-Marquardt进行批量优化</span></span><br><span class="line">    LevenbergMarquardtParams lm_params;  <span class="comment">// 创建Levenberg-Marquardt优化器的参数</span></span><br><span class="line">    lm_params.<span class="built_in">setVerbosity</span>(<span class="string">&quot;ERROR&quot;</span>);  <span class="comment">// 设置输出级别为“错误”以减少输出信息</span></span><br><span class="line">    lm_params.<span class="built_in">setMaxIterations</span>(<span class="number">100</span>);   <span class="comment">// 设置最大迭代次数为100</span></span><br><span class="line">    lm_params.<span class="built_in">setRelativeErrorTol</span>(<span class="number">1e-5</span>); <span class="comment">// 设置相对误差容忍度为1e-5</span></span><br><span class="line">    <span class="function">LevenbergMarquardtOptimizer <span class="title">optimizer</span><span class="params">(graph, initialEstimate, lm_params)</span></span>;  <span class="comment">// 创建优化器</span></span><br><span class="line">    Values result = optimizer.<span class="built_in">optimize</span>();  <span class="comment">// 执行优化</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 输出最终优化的状态并保存到CSV文件</span></span><br><span class="line">    <span class="function">ofstream <span class="title">log_file</span><span class="params">(<span class="string">&quot;trajectory_log.txt&quot;</span>)</span></span>;  <span class="comment">// 创建日志文件保存轨迹数据</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; euler_angles.<span class="built_in">size</span>(); i += <span class="number">10</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Pose3 pose = result.<span class="built_in">at</span>&lt;Pose3&gt;(<span class="built_in">Symbol</span>(<span class="string">&#x27;x&#x27;</span>, i));  <span class="comment">// 获取优化后的位姿</span></span><br><span class="line">            Vector3 velocity = result.<span class="built_in">at</span>&lt;Vector3&gt;(<span class="built_in">Symbol</span>(<span class="string">&#x27;v&#x27;</span>, i));  <span class="comment">// 获取优化后的速度</span></span><br><span class="line">            Vector3 rpy = pose.<span class="built_in">rotation</span>().<span class="built_in">rpy</span>();  <span class="comment">// 获取优化后的欧拉角（滚转、俯仰、偏航）</span></span><br><span class="line">            <span class="type">double</span> time_interval = time_intervals[i];  <span class="comment">// 获取时间间隔</span></span><br><span class="line">            log_file &lt;&lt; <span class="string">&quot;Pose at step &quot;</span> &lt;&lt; i &lt;&lt; <span class="string">&quot;: &quot;</span> &lt;&lt; pose &lt;&lt; endl;  <span class="comment">// 写入日志文件</span></span><br><span class="line">            log_file &lt;&lt; <span class="string">&quot;Velocity at step &quot;</span> &lt;&lt; i &lt;&lt; <span class="string">&quot;: &quot;</span> &lt;&lt; velocity.<span class="built_in">transpose</span>() &lt;&lt; endl;  <span class="comment">// 写入日志文件</span></span><br><span class="line">            output_file &lt;&lt; fixed &lt;&lt; <span class="built_in">setprecision</span>(<span class="number">15</span>) &lt;&lt; rpy.<span class="built_in">x</span>() &lt;&lt; <span class="string">&quot;,&quot;</span> &lt;&lt; rpy.<span class="built_in">y</span>() &lt;&lt; <span class="string">&quot;,&quot;</span> &lt;&lt; rpy.<span class="built_in">z</span>() &lt;&lt; <span class="string">&quot;,&quot;</span></span><br><span class="line">                &lt;&lt; velocity.<span class="built_in">x</span>() &lt;&lt; <span class="string">&quot;,&quot;</span> &lt;&lt; velocity.<span class="built_in">y</span>() &lt;&lt; <span class="string">&quot;,&quot;</span> &lt;&lt; velocity.<span class="built_in">z</span>() &lt;&lt; <span class="string">&quot;,&quot;</span></span><br><span class="line">                &lt;&lt; pose.<span class="built_in">x</span>() &lt;&lt; <span class="string">&quot;,&quot;</span> &lt;&lt; pose.<span class="built_in">y</span>() &lt;&lt; <span class="string">&quot;,&quot;</span> &lt;&lt; pose.<span class="built_in">z</span>() &lt;&lt; <span class="string">&quot;,&quot;</span></span><br><span class="line">                &lt;&lt; time_interval &lt;&lt; <span class="string">&quot;\n&quot;</span>;  <span class="comment">// 保存轨迹数据到CSV文件</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">catch</span> (<span class="type">const</span> exception&amp; e) &#123;</span><br><span class="line">            cerr &lt;&lt; <span class="string">&quot;Exception while accessing data at step &quot;</span> &lt;&lt; i &lt;&lt; <span class="string">&quot;: &quot;</span> &lt;&lt; e.<span class="built_in">what</span>() &lt;&lt; endl;  <span class="comment">// 如果访问数据时发生异常，输出错误信息</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 关闭输出文件</span></span><br><span class="line">    output_file.<span class="built_in">close</span>();</span><br><span class="line">    log_file.<span class="built_in">close</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">// 程序正常结束</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li><strong>数据读取</strong>：从CSV文件中加载AVP数据，具体包括欧拉角、速度、位置和时间间隔。</li>
+<li><strong>预积分与IMU因子</strong>：使用IMU数据进行预积分并创建IMU因子，这在因子图优化中非常重要，尤其是在处理时间序列数据时。</li>
+<li><strong>因子图优化</strong>：利用Levenberg-Marquardt优化器执行非线性优化，优化位姿、速度和IMU偏置。</li>
+<li><strong>结果保存</strong>：最终的优化结果被输出到日志文件和CSV文件，包含了优化后的轨迹信息。</li>
+</ol>
+<hr>
+<p>这段代码的主要功能是使用<strong>IMU（惯性测量单元）数据</strong>，结合<strong>图优化</strong>技术（尤其是 <strong>GTSAM</strong> 库），来进行 <strong>机器人或设备的状态估计</strong>，包括位姿（位置和朝向）、速度以及IMU的偏置估计。代码的核心任务是利用IMU的数据进行 <strong>预积分（Preintegration）</strong>，构建一个因子图（Factor Graph），并通过 <strong>图优化</strong> 来估计系统的状态。</p>
+<p>我们可以逐步分析这段代码的工作流程，以便理解它的具体功能。</p>
+<hr>
+<h2 id="背景知识："><a href="#背景知识：" class="headerlink" title="背景知识："></a><strong>背景知识：</strong></h2><p>在 <strong>机器人学</strong> 或 <strong>传感器融合</strong> 中，IMU 是一种常见的传感器，能够测量加速度和角速度。常见的应用包括 <strong>定位</strong>、<strong>姿态估计</strong>、<strong>惯性导航系统（INS）</strong> 等。</p>
+<p>IMU 提供的是<strong>积分数据</strong>，意味着我们通常得到的是<strong>增量变化</strong>，而不是绝对位置、速度或姿态。因此，IMU 的数据需要通过 <strong>预积分（Preintegration）</strong> 和 <strong>优化算法</strong> 来推算出更准确的全局状态。</p>
+<p><strong>GTSAM</strong> 是一个处理 <strong>图优化</strong> 的库，常用于 SLAM（Simultaneous Localization and Mapping）和其他优化问题。通过构建一个 <strong>因子图（Factor Graph）</strong>，它能够将各种约束（例如，来自传感器的测量数据）合并到一起，并通过优化算法（如 <strong>Levenberg-Marquardt</strong>）求解出最优的状态估计。</p>
+<hr>
+<h2 id="代码功能概述："><a href="#代码功能概述：" class="headerlink" title="代码功能概述："></a><strong>代码功能概述：</strong></h2><ol>
+<li><strong>读取IMU和位置数据</strong>：从CSV文件中读取IMU的角速度、加速度、位置、速度以及时间戳等信息。</li>
+<li><strong>设置IMU预积分参数</strong>：使用IMU数据进行<strong>预积分</strong>，即通过加速度和角速度的增量计算设备的位姿和速度的变化。</li>
+<li><strong>建立因子图</strong>：将IMU的预积分数据、设备的初始状态（位姿、速度、偏置）和噪声模型等添加到因子图中，构建一个非线性优化问题。</li>
+<li><strong>执行图优化</strong>：使用 <strong>Levenberg-Marquardt优化器</strong> 对因子图进行优化，得到设备的最优状态（位姿、速度和偏置）。</li>
+<li><strong>输出结果</strong>：将优化后的位姿、速度和其他信息保存到文件中，供后续分析使用。</li>
+</ol>
+<hr>
+<h3 id="具体步骤分析："><a href="#具体步骤分析：" class="headerlink" title="具体步骤分析："></a><strong>具体步骤分析：</strong></h3><h3 id="1-数据读取（读取CSV文件中的IMU数据）"><a href="#1-数据读取（读取CSV文件中的IMU数据）" class="headerlink" title="1. 数据读取（读取CSV文件中的IMU数据）"></a>1. <strong>数据读取（读取CSV文件中的IMU数据）</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ifstream <span class="title">file</span><span class="params">(<span class="string">&quot;avp_data.csv&quot;</span>)</span></span>;</span><br><span class="line"><span class="keyword">if</span> (!file.<span class="built_in">is_open</span>()) &#123;</span><br><span class="line">    cerr &lt;&lt; <span class="string">&quot;Unable to open the file!&quot;</span> &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先，代码尝试从 <code>&quot;avp_data.csv&quot;</code> 文件中读取数据。如果文件打开失败，程序会输出错误信息并终止。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vector&lt;Vector3&gt; euler_angles;</span><br><span class="line">vector&lt;Vector3&gt; velocities;</span><br><span class="line">vector&lt;Vector3&gt; positions;</span><br><span class="line">vector&lt;<span class="type">double</span>&gt; time_intervals;</span><br></pre></td></tr></table></figure>
+<p>定义几个 <code>vector</code> 用来存储从CSV文件中读取的数据：</p>
+<ul>
+<li><strong>euler_angles</strong>：每一行数据中的欧拉角（roll, pitch, yaw），表示物体的姿态。</li>
+<li><strong>velocities</strong>：每一行数据中的速度（x, y, z）。</li>
+<li><strong>positions</strong>：每一行数据中的位置（x, y, z）。</li>
+<li><strong>time_intervals</strong>：时间间隔，假设为常量。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (<span class="built_in">getline</span>(file, line)) &#123;</span><br><span class="line">    <span class="function">stringstream <span class="title">ss</span><span class="params">(line)</span></span>;</span><br><span class="line">    string value;</span><br><span class="line">    vector&lt;<span class="type">double</span>&gt; row_data;</span><br><span class="line">    <span class="keyword">while</span> (<span class="built_in">getline</span>(ss, value, <span class="string">&#x27;,&#x27;</span>)) &#123;</span><br><span class="line">        row_data.<span class="built_in">push_back</span>(<span class="built_in">stod</span>(value));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Assuming columns are ordered as: roll, pitch, yaw, velocity_x, velocity_y, velocity_z, pos_x, pos_y, pos_z, time_interval</span></span><br><span class="line">    euler_angles.<span class="built_in">emplace_back</span>(row_data[<span class="number">0</span>], row_data[<span class="number">1</span>], row_data[<span class="number">2</span>]);</span><br><span class="line">    velocities.<span class="built_in">emplace_back</span>(row_data[<span class="number">3</span>], row_data[<span class="number">4</span>], row_data[<span class="number">5</span>]);</span><br><span class="line">    positions.<span class="built_in">emplace_back</span>(row_data[<span class="number">6</span>], row_data[<span class="number">7</span>], row_data[<span class="number">8</span>]);</span><br><span class="line">    time_intervals.<span class="built_in">emplace_back</span>(row_data[<span class="number">9</span>]);</span><br><span class="line">&#125;</span><br><span class="line">file.<span class="built_in">close</span>();</span><br></pre></td></tr></table></figure>
+<p>这里逐行读取CSV文件中的数据，并将每行数据转换成对应的 <strong>欧拉角</strong>、<strong>速度</strong>、<strong>位置</strong> 和 <strong>时间间隔</strong>，存入前面定义的 <code>vector</code> 中。CSV文件的每一行数据的顺序假设是：<strong>欧拉角</strong>（roll, pitch, yaw）、<strong>速度</strong>（velocity_x, velocity_y, velocity_z）、<strong>位置</strong>（pos_x, pos_y, pos_z）和 <strong>时间间隔</strong>。</p>
+<h3 id="2-IMU预积分参数设置"><a href="#2-IMU预积分参数设置" class="headerlink" title="2. IMU预积分参数设置"></a>2. <strong>IMU预积分参数设置</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Vector3 <span class="title">gravity</span><span class="params">(<span class="number">0</span>, <span class="number">0</span>, <span class="number">-9.81</span>)</span></span>;  <span class="comment">// 设置重力加速度</span></span><br><span class="line"><span class="keyword">auto</span> params = PreintegrationParams::<span class="built_in">MakeSharedU</span>(<span class="number">-9.81</span>);  <span class="comment">// 使用重力加速度创建IMU预积分参数</span></span><br><span class="line">params-&gt;accelerometerCovariance = I_3x3 * <span class="number">0.01</span>;  <span class="comment">// 设置加速度计噪声协方差</span></span><br><span class="line">params-&gt;gyroscopeCovariance = I_3x3 * <span class="number">0.01</span>;      <span class="comment">// 设置陀螺仪噪声协方差</span></span><br><span class="line">params-&gt;integrationCovariance = I_3x3 * <span class="number">0.01</span>;    <span class="comment">// 设置积分噪声协方差</span></span><br></pre></td></tr></table></figure>
+<p>在这部分代码中，我们创建了一个 <strong>IMU预积分参数对象</strong> <code>params</code>。这个对象将用于对IMU数据进行预积分，计算设备的状态（位姿和速度）的增量。</p>
+<ul>
+<li><code>gravity</code> 设置了重力加速度，指向 <strong>z轴负方向</strong>。</li>
+<li><code>params</code> 对象初始化时使用了重力加速度，这对于IMU数据的处理至关重要。</li>
+<li>通过调整 <strong>加速度计</strong>、<strong>陀螺仪</strong> 和 <strong>积分</strong> 的协方差矩阵，我们能够控制优化的精度和噪声。</li>
+</ul>
+<h3 id="3-初始估计和噪声模型设置"><a href="#3-初始估计和噪声模型设置" class="headerlink" title="3. 初始估计和噪声模型设置"></a>3. <strong>初始估计和噪声模型设置</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Pose3 <span class="title">prior_pose</span><span class="params">(Rot3::RzRyRx(euler_angles[<span class="number">0</span>]), Point3(positions[<span class="number">0</span>].x(), positions[<span class="number">0</span>].y(), positions[<span class="number">0</span>].z()))</span></span>;</span><br><span class="line">Vector3 prior_velocity = velocities[<span class="number">0</span>];</span><br><span class="line"><span class="function">NavState <span class="title">prior_state</span><span class="params">(prior_pose, prior_velocity)</span></span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>prior_pose</strong>：使用从CSV文件读取的第一个欧拉角和位置数据来设置设备的初始位姿。</li>
+<li><strong>prior_velocity</strong>：使用从CSV文件读取的第一个速度数据来设置设备的初始速度。</li>
+<li><strong>prior_state</strong>：封装位姿和速度信息，表示设备的初始状态。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> pose_noise_model = noiseModel::Diagonal::<span class="built_in">Sigmas</span>((<span class="built_in">Vector</span>(<span class="number">6</span>) &lt;&lt; <span class="number">0.1</span>, <span class="number">0.1</span>, <span class="number">0.1</span>, <span class="number">0.3</span>, <span class="number">0.3</span>, <span class="number">0.3</span>).<span class="built_in">finished</span>());  <span class="comment">// 位姿噪声模型</span></span><br><span class="line"><span class="keyword">auto</span> velocity_noise_model = noiseModel::Isotropic::<span class="built_in">Sigma</span>(<span class="number">3</span>, <span class="number">0.1</span>);  <span class="comment">// 速度噪声模型</span></span><br><span class="line"><span class="keyword">auto</span> bias_noise_model = noiseModel::Isotropic::<span class="built_in">Sigma</span>(<span class="number">6</span>, <span class="number">0.1</span>);  <span class="comment">// 偏置噪声模型</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>pose_noise_model</strong>：为位姿（位置和朝向）设置噪声模型。</li>
+<li><strong>velocity_noise_model</strong>：为速度设置噪声模型。</li>
+<li><strong>bias_noise_model</strong>：为IMU的偏置设置噪声模型。</li>
+</ul>
+<h3 id="4-因子图（Factor-Graph）创建与初始化估计"><a href="#4-因子图（Factor-Graph）创建与初始化估计" class="headerlink" title="4. 因子图（Factor Graph）创建与初始化估计"></a>4. <strong>因子图（Factor Graph）创建与初始化估计</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NonlinearFactorGraph graph;  <span class="comment">// 创建因子图</span></span><br><span class="line">Values initialEstimate;  <span class="comment">// 创建初始估计容器</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>graph</strong>：用于存储因子图中的所有因子（约束）。</li>
+<li><strong>initialEstimate</strong>：存储所有优化变量的初始值。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">graph.<span class="built_in">add</span>(<span class="built_in">PriorFactor</span>&lt;Pose3&gt;(<span class="built_in">Symbol</span>(<span class="string">&#x27;x&#x27;</span>, <span class="number">0</span>), prior_pose, pose_noise_model));</span><br><span class="line">graph.<span class="built_in">add</span>(<span class="built_in">PriorFactor</span>&lt;Vector3&gt;(<span class="built_in">Symbol</span>(<span class="string">&#x27;v&#x27;</span>, <span class="number">0</span>), prior_velocity, velocity_noise_model));</span><br><span class="line">graph.<span class="built_in">add</span>(<span class="built_in">PriorFactor</span>&lt;imuBias::ConstantBias&gt;(<span class="built_in">Symbol</span>(<span class="string">&#x27;b&#x27;</span>, <span class="number">0</span>), prior_bias, bias_noise_model));</span><br></pre></td></tr></table></figure>
+<p>这里，我们为 <strong>位姿</strong>、<strong>速度</strong> 和 <strong>IMU偏置</strong> 添加了先验因子（表示我们对初始状态的知识和不确定性）。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">initialEstimate.<span class="built_in">insert</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;x&#x27;</span>, <span class="number">0</span>), prior_pose);  </span><br><span class="line">initialEstimate.<span class="built_in">insert</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;v&#x27;</span>, <span class="number">0</span>), prior_velocity);  </span><br><span class="line">initialEstimate.<span class="built_in">insert</span>(<span class="built_in">Symbol</span>(<span class="string">&#x27;b&#x27;</span>, <span class="number">0</span>), prior_bias);  </span><br></pre></td></tr></table></figure>
+<p>这些代码为初始估计容器插入了初始的位姿、速度和偏置估计值。</p>
+<h3 id="5-IMU数据预积分与因子添加"><a href="#5-IMU数据预积分与因子添加" class="headerlink" title="5. IMU数据预积分与因子添加"></a>5. <strong>IMU数据预积分与因子添加</strong></h3><p>在每次读取IMU数据时，使用预积分技术计算设备状态的增量，并将其添加到因子图中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">PreintegratedImuMeasurements <span class="title">preintegrated</span><span class="params">(params, prior_bias)</span></span>;  <span class="comment">// 创建IMU预积分对象</span></span><br></pre></td></tr></table></figure>
+<p><code>preintegrated</code> 是一个 <strong>IMU预积分对象</strong>，用于根据每个时间步的加</p>
+<p>速度和角速度来计算状态的增量。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">1</span>; i &lt; euler_angles.<span class="built_in">size</span>(); ++i) &#123;</span><br><span class="line">    <span class="type">double</span> dt = time_intervals[i];  <span class="comment">// 获取时间间隔</span></span><br><span class="line">    Vector3 measured_acc = velocities[i];   <span class="comment">// 假设速度作为加速度的代理</span></span><br><span class="line">    Vector3 measured_omega = euler_angles[i];  <span class="comment">// 假设欧拉角作为角速度的代理</span></span><br><span class="line">    preintegrated.<span class="built_in">integrateMeasurement</span>(measured_acc, measured_omega, dt);  <span class="comment">// 进行IMU预积分</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>每处理一个数据点，程序就将加速度和角速度（这里简化为速度和欧拉角）通过 <code>preintegrated</code> 进行预积分，从而更新当前的设备状态。</p>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h3><p>这段代码实现了基于 <strong>IMU数据</strong> 和 <strong>图优化</strong> 的 <strong>状态估计</strong>。具体来说，它从CSV文件中读取设备的IMU数据（加速度、角速度、位置、速度等），并通过 <strong>预积分</strong> 和 <strong>图优化</strong> 技术来计算设备的最优状态（位置、速度和偏置）。优化过程使用 <strong>Levenberg-Marquardt算法</strong> 来最小化因子图中的误差，从而得到更精确的估计结果。</p>
+<p>最终，优化后的结果被保存到文件中，供后续分析使用。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="https://wild-civil.github.io">Civil</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://wild-civil.github.io/post/12bc0cb8.html">https://wild-civil.github.io/post/12bc0cb8.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://youpai.hanvon.top/blog/article/Learing/FG/IMU_PRE/imu_pre_2.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://youpai.hanvon.top/blog/background/donate/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="https://youpai.hanvon.top/blog/background/donate/wechat.jpg" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li><li class="reward-item"><a href="https://youpai.hanvon.top/blog/background/donate/alipay.jpg" target="_blank"><img class="post-qr-code-img" src="https://youpai.hanvon.top/blog/background/donate/alipay.jpg" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/post/48469db3.html"><img class="next-cover" src="https://youpai.hanvon.top/blog/cover/factor_example.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">因子图应用于导航</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/images/dragon_and_knight.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Civil</div><div class="author-info__description">可以平凡但不能平庸</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wild-civil"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wild-civil" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:f473112889@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://fontawesome.com/icons" target="_blank" title="Icon Font"><i class="fa-solid fa-cubes"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content"><div id="welcome-info"></div></div><span id="stayTiming"></span><br/><span id="activeTiming"> </span><br/><span id="warning"> </span></div><div class="card-widget couple-widget" id="love_timer"><div class="item-headline"><i></i><span></span></div><div class="item-content"><!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="utf-8">
+      <title></title>
+      <style>
+        .icon {
+            width: 1em;
+            height: 1em;
+            vertical-align: middle;
+            fill: currentColor;
+            overflow: hidden;
+        }
+
+        /* 设置标题的字体大小和其他样式 */
+        .couple-title {
+          font-size: 1.2rem; /* 修改为合适的字体大小 */
+          # font-weight: bold; /* 如果需要更粗的字体可以使用 */
+          color: #333; /* 根据你的设计需求调整颜色 */
+          text-align: center; /* 确保标题居中 */
+          margin-bottom: 20px; /* 去掉多余的外边距 */
+        }
+        
+        @media screen and (max-width: 576px)  {
+        
+            .nav-search-btn {
+                right: 0!important;
+            }
+        }
+        .couple {
+            text-align: center;
+        }
+        
+        .info .pic,.couple .pic {
+            border-radius: 50%;
+            width: 5rem;
+            background: #fff;
+            padding: 2px;
+        }
+        
+        .couple-love {
+            width: 35px;
+            margin: 20px 0;
+            animation: heartbeat 1.33s ease-in-out infinite;
+        }
+        
+        @keyframes heartbeat {
+            0% {
+                -webkit-transform: scale(1);
+                transform: scale(1)
+            }
+            50% {
+                -webkit-transform: scale(.8);
+                transform: scale(.8)
+            }
+            to {
+                -webkit-transform: scale(1);
+                transform: scale(1)
+            }
+        }
+        #our-company {
+            text-align: center;
+          font-size: 1.1rem;
+        /*    color: #7d7474;
+            background: aliceblue; */
+            width: 100%;
+            border-radius: 4px;
+            padding: 0.5rem 0;
+            user-select: none;
+        }
+        #our-company span {
+            margin: 0 .25rem;
+            vertical-align: middle;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="row">
+          <div class="col-12 col-md-3 position-relative right d-none d-md-block">
+            <div class="sidebar-box couple"> 
+              <!-- 标题部分 -->
+              <div class="couple-title">
+                  ----- 艾顽石 ❤️ 阿拉蕾 -----
+              </div>
+              <img class="pic" src="https://youpai.hanvon.top/blog/FnL/L.png" alt="LSS"> <img
+              class="couple-love" src="https://youpai.hanvon.top/blog/FnL/love-removebg-preview.png" alt="爱心"> <img class="pic" src="https://youpai.hanvon.top/blog/FnL/F.png"
+              alt="FHH">
+              <div id="our-company" data-start="2020-12-04"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script src="/js/haiyong/lanstarApp.js"></script>
+      <script src="/js/haiyong/icon.js"></script>
+      <script>
+        lanstar.init();
+      </script>
+      <script>
+        lanstar.addCoupleTime();
+      </script>
+    </body>
+  </html>
+</div></div><div class="card-widget moment-widget" id="moment_timer"><div class="item-headline"><i class="fa-solid fa-fan"></i><span>转眼之间</span></div><div class="item-content"><html>
+  <head></head>
+  <body>
+    <div class="widget_text zib-widget widget_custom_html">
+      <div class="textwidget custom-html-widget">
+        <style type="text/css">
+          .time-schedule-main {
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+          }
+          .today-schedule,
+          .toweek-schedule,
+          .tomonth-schedule,
+          .toyear-schedule {
+            display: inline-block;
+            width: 50px;
+            height: 100px;
+            background-color: white;
+            border: 1px solid #eee;
+            border-radius: 99px;
+          }
+          .wiiuii-schedule-item {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 99px;
+          }
+          .today-item,
+          .toweek-item,
+          .tomonth-item,
+          .toyear-item {
+            position: absolute;
+            width: 100%;
+            height: 109%;
+            bottom: 0;
+            transition: all 1s;
+          }
+          .schedule-info {
+            display: flex;
+            color: #333;
+            position: absolute;
+            margin: auto;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+          }
+          .schedule-tilte {
+            font-size: 12px;
+            font-weight: 700;
+          }
+          .time-schedule-main img {
+            background-repeat: no-repeat;
+            background-color: rgba(0, 0, 0, 0); /* 透明度的黑色 */
+            max-width: unset !important;
+            max-height: unset !important;
+            width: 200px;
+            height: 10px;  /* 波浪高低 */
+            top: 0;
+            left: 0;
+            position: absolute;
+            animation: wiiuii_move_wave 2s linear infinite;
+            -webkit-animation: wiiuii_move_wave 2s linear infinite;
+          }
+
+
+          [data-theme="dark"] .time-schedule-main img {
+            background-color: rgba(255, 255, 255, 0); /* 透明度的白色 */
+            # background-color: transparent; /* 使用透明背景 */
+            filter: none !important; /* 移除滤镜效果 */
+            # opacity: 1 !important;   /* 恢复原始透明度 */
+          }
+
+          @-webkit-keyframes wiiuii_move_wave {
+            0% { -webkit-transform: translateX(0); }
+            50% { -webkit-transform: translateX(-25%); }
+            100% { -webkit-transform: translateX(-50%); }
+          }
+          @keyframes wiiuii_move_wave {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(-25%); }
+            100% { transform: translateX(-50%); }
+          }
+
+          /* 今日剩余背景颜色 - 黄绿色到柔和橙色 (生机风格)*/
+          .today-item {
+            background-image: linear-gradient(to right, #dcedc1, #ffcc80);
+          }
+          /* 本周剩余背景颜色 - 柔和粉色到淡紫色 (温暖风格) */
+          .toweek-item {
+            background-image: linear-gradient(to right, #fbb4ae, #d3b5e5);
+          }
+          /* 本月剩余背景颜色 - 浅蓝到青绿色 (自然风格)  */
+          .tomonth-item {
+            
+            background-image: linear-gradient(to right, #a0e9ff, #69d1c5);
+          }
+          /* 今年剩余背景颜色 - 深蓝到淡蓝色 (宁静风格) */
+          .toyear-item {
+            background-image: linear-gradient(to right, #4a90e2, #b3cde0);
+          }
+        </style>
+
+        <div class="time-schedule-main">
+          <div class="today-schedule">
+            <div class="wiiuii-schedule-item">
+              <div class="today-item" style="height: 66%;">
+                <img src="https://youpai.hanvon.top/blog/background/wave.png">
+              </div>
+              <div class="schedule-info">
+                <span class="schedule-tilte">今日剩余</span>
+                <span class="today-num">80%</span>
+              </div>
+            </div>
+          </div>
+          <div class="toweek-schedule">
+            <div class="wiiuii-schedule-item">
+              <div class="toweek-item" style="height: 20.6%;">
+                <img src="https://youpai.hanvon.top/blog/background/wave.png">
+              </div>
+              <div class="schedule-info">
+                <span class="schedule-tilte">本周剩余</span>
+                <span class="toweek-num">20.6%</span>
+              </div>
+            </div>
+          </div>
+          <div class="tomonth-schedule">
+            <div class="wiiuii-schedule-item">
+              <div class="tomonth-item" style="height: 74.8%;">
+                <img src="https://s4.ax1x.com/2022/02/06/HuOUv6.png">
+              </div>
+              <div class="schedule-info">
+                <span class="schedule-tilte">本月剩余</span>
+                <span class="tomonth-num">74.8%</span>
+              </div>
+            </div>
+          </div>
+          <div class="toyear-schedule">
+            <div class="wiiuii-schedule-item">
+              <div class="toyear-item" style="height: 14.6%;">
+                <img src="https://s4.ax1x.com/2022/02/06/HuOUv6.png">
+              </div>
+              <div class="schedule-info">
+                <span class="schedule-tilte">本年剩余</span>
+                <span class="toyear-num">14.6%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script type="text/javascript">
+          function calculatePercentage(current, total) {
+            return ((total - current) / total * 100).toFixed(1);
+          }
+
+          function setTimeSchedule() {
+            const now = new Date();
+
+            // 今日剩余百分比
+            const totalSecondsToday = 24 * 3600;
+            const currentSecondsToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            const todayPercentage = calculatePercentage(currentSecondsToday, totalSecondsToday);
+            document.querySelector('.today-num').innerText = todayPercentage + "%";
+            document.querySelector('.today-item').style.height = todayPercentage + "%";
+
+            // 本周剩余百分比
+            //const totalSecondsWeek = 7 * 24 * 3600;
+            //const currentSecondsWeek = (now.getDay() * 24 * 3600) + currentSecondsToday;
+            //const weekPercentage = calculatePercentage(currentSecondsWeek, totalSecondsWeek);
+            //document.querySelector('.toweek-num').innerText = weekPercentage + "%";
+            //document.querySelector('.toweek-item').style.height = weekPercentage + "%";
+
+            // 本周剩余百分比
+            const totalSecondsWeek = 7 * 24 * 3600;
+            const currentDayOfWeek = (now.getDay() === 0) ? 6 : now.getDay() - 1; // 将 Sunday (0) 变为 6，其他日期减去 1
+            const currentSecondsWeek = (currentDayOfWeek * 24 * 3600) + currentSecondsToday;
+            const weekPercentage = calculatePercentage(currentSecondsWeek, totalSecondsWeek);
+            document.querySelector('.toweek-num').innerText = weekPercentage + "%";
+            document.querySelector('.toweek-item').style.height = weekPercentage + "%";
+
+            //const totalSecondsWeek = 7 * 24 * 3600;
+            //let currentDay = now.getDay();
+            //currentDay = (currentDay === 0) ? 7 : currentDay; // 如果是星期天，将其转换为7
+            //const currentSecondsWeek = (currentDay - 1) * 24 * 3600 + currentSecondsToday; // 以周一为每周的第一天
+            //const weekPercentage = calculatePercentage(currentSecondsWeek, totalSecondsWeek);
+            //document.querySelector('.toweek-num').innerText = weekPercentage + "%";
+            //document.querySelector('.toweek-item').style.height = weekPercentage + "%";
+
+
+
+
+
+            // 本月剩余百分比
+            const totalDaysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const totalSecondsMonth = totalDaysInMonth * 24 * 3600;
+            const currentSecondsMonth = ((now.getDate() - 1) * 24 * 3600) + currentSecondsToday;
+            const monthPercentage = calculatePercentage(currentSecondsMonth, totalSecondsMonth);
+            document.querySelector('.tomonth-num').innerText = monthPercentage + "%";
+            document.querySelector('.tomonth-item').style.height = monthPercentage + "%";
+
+            // 本年剩余百分比
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+            const endOfYear = new Date(now.getFullYear() + 1, 0, 1);
+            const totalSecondsYear = Math.round((endOfYear - startOfYear) / 1000);
+            const currentSecondsYear = Math.round((now - startOfYear) / 1000);
+            const yearPercentage = calculatePercentage(currentSecondsYear, totalSecondsYear);
+            document.querySelector('.toyear-num').innerText = yearPercentage + "%";
+            document.querySelector('.toyear-item').style.height = yearPercentage + "%";
+          }
+
+          // 每隔1秒更新一次
+          setInterval(setTimeSchedule, 1000);
+          // 初始化
+          setTimeSchedule();
+        </script>
+
+        <div class="google-auto-placed" style="width: 100%; height: auto; clear: none; text-align: center;">
+          <ins class="adsbygoogle adsbygoogle-noablate" style="display: block; margin: 10px auto; background-color: transparent; height: 6px;" data-ad-client="ca-pub-7056167681359419" data-ad-format="auto" data-adsbygoogle-status="done">
+            <div id="aswift_4_host" style="border: none; height: 600px; width: 281px; margin: 0; padding: 0; position: relative; visibility: visible; background-color: transparent; display: inline-block;"></div>
+          </ins>
+        </div>
+      </div>
+    </div>
+  </body>
+  </html>
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">背景知识：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%8A%9F%E8%83%BD%E6%A6%82%E8%BF%B0%EF%BC%9A"><span class="toc-number">2.</span> <span class="toc-text">代码功能概述：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E6%AD%A5%E9%AA%A4%E5%88%86%E6%9E%90%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">具体步骤分析：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%95%B0%E6%8D%AE%E8%AF%BB%E5%8F%96%EF%BC%88%E8%AF%BB%E5%8F%96CSV%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84IMU%E6%95%B0%E6%8D%AE%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">1. 数据读取（读取CSV文件中的IMU数据）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-IMU%E9%A2%84%E7%A7%AF%E5%88%86%E5%8F%82%E6%95%B0%E8%AE%BE%E7%BD%AE"><span class="toc-number">2.3.</span> <span class="toc-text">2. IMU预积分参数设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%88%9D%E5%A7%8B%E4%BC%B0%E8%AE%A1%E5%92%8C%E5%99%AA%E5%A3%B0%E6%A8%A1%E5%9E%8B%E8%AE%BE%E7%BD%AE"><span class="toc-number">2.4.</span> <span class="toc-text">3. 初始估计和噪声模型设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%9B%A0%E5%AD%90%E5%9B%BE%EF%BC%88Factor-Graph%EF%BC%89%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%8C%96%E4%BC%B0%E8%AE%A1"><span class="toc-number">2.5.</span> <span class="toc-text">4. 因子图（Factor Graph）创建与初始化估计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-IMU%E6%95%B0%E6%8D%AE%E9%A2%84%E7%A7%AF%E5%88%86%E4%B8%8E%E5%9B%A0%E5%AD%90%E6%B7%BB%E5%8A%A0"><span class="toc-number">2.6.</span> <span class="toc-text">5. IMU数据预积分与因子添加</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.7.</span> <span class="toc-text">总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/12bc0cb8.html" title="IMU预积分"><img src="https://youpai.hanvon.top/blog/article/Learing/FG/IMU_PRE/imu_pre_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="IMU预积分"/></a><div class="content"><a class="title" href="/post/12bc0cb8.html" title="IMU预积分">IMU预积分</a><time datetime="2024-11-13T15:03:00.000Z" title="Created 2024-11-13 23:03:00">2024-11-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/48469db3.html" title="因子图应用于导航"><img src="https://youpai.hanvon.top/blog/cover/factor_example.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="因子图应用于导航"/></a><div class="content"><a class="title" href="/post/48469db3.html" title="因子图应用于导航">因子图应用于导航</a><time datetime="2024-11-05T08:59:38.000Z" title="Created 2024-11-05 16:59:38">2024-11-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/5b8c8a6e.html" title="UKF"><img src="https://youpai.hanvon.top/blog/article/Navigation/XKF/UKF/UKF%20vs.%20EKF%20illustration.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UKF"/></a><div class="content"><a class="title" href="/post/5b8c8a6e.html" title="UKF">UKF</a><time datetime="2024-06-07T03:46:10.000Z" title="Created 2024-06-07 11:46:10">2024-06-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/a7838e86.html" title="读论文"><img src="https://youpai.hanvon.top/blog/cover/paper_reading.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="读论文"/></a><div class="content"><a class="title" href="/post/a7838e86.html" title="读论文">读论文</a><time datetime="2024-04-08T01:48:32.000Z" title="Created 2024-04-08 09:48:32">2024-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/570ffaad.html" title="VsCode搭建OpenGL环境"><img src="https://youpai.hanvon.top/blog/cover/VsCode_OpenGL_cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="VsCode搭建OpenGL环境"/></a><div class="content"><a class="title" href="/post/570ffaad.html" title="VsCode搭建OpenGL环境">VsCode搭建OpenGL环境</a><time datetime="2023-11-18T04:32:59.000Z" title="Created 2023-11-18 12:32:59">2023-11-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/f73586b.html" title="磨刀不误砍柴工"><img src="https://youpai.hanvon.top/blog/cover/%E5%B7%A5%E6%AC%B2%E5%96%84%E5%85%B6%E4%BA%8B%EF%BC%8C%E5%BF%85%E5%85%88%E5%88%A9%E5%85%B6%E5%99%A8.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="磨刀不误砍柴工"/></a><div class="content"><a class="title" href="/post/f73586b.html" title="磨刀不误砍柴工">磨刀不误砍柴工</a><time datetime="2023-10-29T14:52:49.000Z" title="Created 2023-10-29 22:52:49">2023-10-29</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2021 - 2024 By Civil</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text"><a target="_blank" rel="noopener" href="https://beian.mps.gov.cn/#/query/webSearch"><img class="icp-icon" src="https://youpai.hanvon.top/blog/background/beian.png"><span>晋ICP备2022001836号</span></a>        <a target="_blank" rel="noopener" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"><img src="https://youpai.hanvon.top/blog/background/upyun_logo.png" align="absmiddle" width="80px" height="32px" /></a> <span>提供云存储服务</span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script src="/js/timing.js"></script><script src="/js/cursor.js"></script><script src="/js/cheat.js"></script><script defer="true" src="/js/welcome.js"></script><canvas class="fireworks" mobile="true"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-ribbon.min.js" size="120" alpha="0.3" zIndex="-1" mobile="false" data-click="true"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
