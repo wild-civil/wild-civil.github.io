@@ -1,5 +1,30 @@
 
+/* ----------------------------------  字体大小 -------------------------------------   */
 
+/* announcement timing 字体大小 */
+#stayTiming {
+  font-size: 15px; /* 设置stayTiming元素的字体大小 */
+}
+
+#activeTiming {
+  font-size: 15px; /* 设置activeTiming元素的字体大小 */
+}
+
+#warning {
+  font-size: 16px; /* 设置warning元素的字体大小 */
+}
+/* announcement timing 字体大小 */
+
+
+
+/* 文章段落间距 */
+#article-container p {
+  line-height: 1.8 !important;
+}
+/* 文章列表间距 */
+#article-container ul {
+  line-height: 1.8 !important;
+}
 
 /*// 将公式字体大小设置为 1em */
 .mjx-chtml, .MathJax {
