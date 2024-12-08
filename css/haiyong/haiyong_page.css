@@ -277,7 +277,8 @@ div#category{
 }
 /* 页脚黑色透明玻璃效果移除 */
 #footer::before{
-    background: transparent!important;
+    /* background: transparent!important; */
+    background: rgba(255, 255, 255, 0.3);
   }
 /* 头 顶 图透明 */
 /*#page-header{

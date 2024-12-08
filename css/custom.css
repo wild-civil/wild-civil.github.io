@@ -140,3 +140,23 @@ main.layout#content-inner {
 }
 
 
+
+/* -------------------------------- 页脚 字体颜色 ----------------------------------- */
+
+/* #footer-wrap {
+  color: black !important;
+} */
+#footer-wrap,
+#footer-wrap a{
+  color: black !important;
+}
+
+
+/* [data-theme='dark'] #footer-wrap {
+  color: white !important;
+} */
+[data-theme='dark'] #footer-wrap,
+[data-theme='dark'] #footer-wrap a {
+  color: white !important;
+}
+

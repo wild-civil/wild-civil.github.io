@@ -22,7 +22,9 @@
     width: calc(100% / 4 - 5px);
   }
   
-  #bber .bber-content-img img {
+  /* 图片大小 width 100% 显示全 */
+#bber .bber-content-img img,
+#bber .bber-content-img-one img{
     object-fit: cover;
     max-height: 100%;
     border-radius: 12px;
@@ -38,6 +40,18 @@
     width: calc(100% / 4 - 5px);
     margin-bottom: 10px;
   }
+/* 单图显示全 */
+  #bber .bber-content-img-one {
+    max-width: 300px;
+    max-height: 300px;
+    height: auto;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    position: relative;
+    width: auto;
+    margin-bottom: 10px;
+}
   
   #bber .bber-content .datacont {
     order: 0;
@@ -272,9 +286,9 @@
 
 
 
-  .author-content-item-tips{
-    /* margin-left: 2%; */
-  }
+  /* .author-content-item-tips{
+    margin-left: 2%;
+  } */
 
   .author-content-item-title{
     /* margin: 3%; */
@@ -300,7 +314,7 @@
   
 .card-content{
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
   display: flex;
   flex-direction: column;
   padding: 1rem 2rem;
