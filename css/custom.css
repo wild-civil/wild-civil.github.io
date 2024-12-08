@@ -1,7 +1,7 @@
 
 /* ----------------------------------  字体大小 -------------------------------------   */
 
-/* announcement timing 字体大小 */
+/* ======== announcement timing 字体大小 ======== */
 #stayTiming {
   font-size: 15px; /* 设置stayTiming元素的字体大小 */
 }
@@ -13,9 +13,15 @@
 #warning {
   font-size: 16px; /* 设置warning元素的字体大小 */
 }
-/* announcement timing 字体大小 */
+/* ======== announcement timing 字体大小 ======== */
 
 
+.hbe.hbe-input-label-content.hbe-input-label-content-default{
+  font-size: 18px !important; /* 设置hbe-input-label-content元素的字体大小 */
+}
+
+
+/*  ``````````````````````````` 文章标题字体大小 `````````````````````````````` */ 
 
 /* 文章段落间距 */
 #article-container p {
@@ -76,6 +82,11 @@
 }
 
 
+
+/* ----------------------------------  文章内边距 -------------------------------------   */
+main.layout#content-inner {
+  padding: 20px 15px !important; /* 设置layout元素的内边距 */
+}
 
 
 
