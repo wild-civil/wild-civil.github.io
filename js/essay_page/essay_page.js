@@ -129,4 +129,4 @@ anzhiyu.initIndexEssay();
 anzhiyu.changeTimeInEssay();
 anzhiyu.reflashEssayWaterFall();
 
-window.addEventListener("scroll", essayScroll);
+// window.addEventListener("scroll", essayScroll);
