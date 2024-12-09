@@ -103,6 +103,14 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('keydown', resetInactivityTimer);
     window.addEventListener('click', resetInactivityTimer);
     window.addEventListener('scroll', resetInactivityTimer);
+
+    // PJAX事件监听器 启用pjax时需要
+    document.addEventListener('pjax:end', function () {
+        // 重启计时器
+        startInactivityTimer();
+        startActiveTimer();
+    });
+
 });
 
 
