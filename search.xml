@@ -4,6 +4,19 @@
   
     
     <entry>
+      <title>组合导航学习</title>
+      <link href="/post/7ead290e.html"/>
+      <url>/post/7ead290e.html</url>
+      
+        <content type="html"><![CDATA[<p>先随便记点</p><h2 id="传感器"><a href="#传感器" class="headerlink" title="传感器"></a>传感器</h2><p>捷联惯性导航系统 (Strapdown Inertial Navigation System, SINS)<br>全球导航卫星系统 (Global Navigation Satellite  Systems, GNSS)<br>航姿系统(Attitude Heading Reference System, AHRS)<br>全球定位系统  (Global Positioning System, GPS)<br>地形匹配导航 (Terrain  Aided Navigation, TAN)<br>多普勒测速仪 (Doppler Velocity Log, DVL)<br>磁罗盘 (Magnetic Compass Pilot, MCP)<br>超短基线 (Ultra-Short Base Line, USBL)<br>长基线 (Long Base Line, LBL)<br>深度计(Depthometer, DM)</p><h2 id="载体"><a href="#载体" class="headerlink" title="载体"></a>载体</h2><p>自主水下航行器 (Autonomous Underwater Vehicle, AUV)</p><h2 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h2><p>航位推算 (Dead  Reckoning, DR)</p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>艾顽石的阿拉蕾</title>
       <link href="/post/e0c82c88.html"/>
       <url>/post/e0c82c88.html</url>
