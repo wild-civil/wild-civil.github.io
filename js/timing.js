@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
+    // 重启计时器
+    startInactivityTimer();
+    startActiveTimer();
+
     let localhostTime = new Date(); // 页面打开时间
     let activeStartTime = new Date(); // 活跃时间计时开始时间
     let pausedTime = 0; // 用于记录不活动阶段的活跃计时停止时间
@@ -110,6 +114,8 @@ document.addEventListener('DOMContentLoaded', function () {
         startInactivityTimer();
         startActiveTimer();
     });
+
+
 
 });
 
