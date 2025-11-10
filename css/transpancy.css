@@ -2,7 +2,7 @@
 /* 文章页背景 */
 .layout_post>#post {
     /* 以下代表透明度为0.6 可以自行修改*/
-/*    background: rgba(255,255,255,.6);*/
+   /* background: rgba(255,255,255,.6); */
 background: transparent
 /*    opacity: 0.2;  不推荐 因为整体都会透明 包括字体   */
 }

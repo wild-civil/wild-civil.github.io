@@ -1,59 +1,143 @@
+/* ========== 页面整体样式 ========== */
 #page:has(#essay_page) {
     border: 0;
     box-shadow: none !important;
     padding: 0 !important;
     background: transparent !important;
-  }
-  #page:has(#essay_page) .page-title {
+}
+
+#page:has(#essay_page) .page-title {
     display: none;
-  }
-  #web_bg ~ .page:has(#essay_page) {
+}
+
+#web_bg ~ .page:has(#essay_page) {
     background: var(--anzhiyu-background);
-  }
-  #bber .bber-container-img {
+}
+
+/* ========== 顶部横幅样式 ========== */
+.author-content.author-content-item.essayPage.single {
+    height: 19rem;
+    background: url(https://youpai.hanvon.top/blog/FnL/2022_12_01.jpg) left 50% / cover no-repeat;
+    color: var(--anzhiyu-white);
+    overflow: hidden;
+    margin-top: 0px;
+    border-radius: 24px;
+}
+
+.author-content-item-title {
+    font-size: 2rem;
+}
+
+.content-bottom .tips {
+    position: relative;
+    bottom: 10px;
+}
+
+.author-content-item .content-bottom {
+    margin-top: auto;
     display: flex;
     align-items: center;
-    justify-content: space-around;
-    width: 100%;
-    flex-wrap: wrap;
-    margin-bottom: 0.3rem;
-  }
-  #bber .bber-container-img .bber-content-noimg {
-    width: calc(100% / 4 - 5px);
-  }
-  
-  /* 图片大小 width 100% 显示全 */
-#bber .bber-content-img img,
-#bber .bber-content-img-one img{
-    object-fit: cover;
-    max-height: 100%;
-    border-radius: 12px;
-    width: 100%;
-  }
-  
-  #bber .bber-content-img {
-    height: 100px;
-    border-radius: 12px;
-    overflow: hidden;
-    display: flex;
-    position: relative;
-    width: calc(100% / 4 - 5px);
-    margin-bottom: 10px;
-  }
-/* 单图显示全 */
-  #bber .bber-content-img-one {
-    /* max-width: 300px;
-    max-height: 300px; */
-    height: auto;
-    border-radius: 12px;
-    overflow: hidden;
-    display: flex;
-    position: relative;
-    width: 100%;
-    margin-bottom: 10px;
+    justify-content: space-between;
 }
-  
-  #bber .bber-content .datacont {
+
+.card-content {
+    width: 100%;
+    height: 100%; 
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 2rem;
+}
+
+.author-content-item .card-content .banner-button-group {
+    bottom: 1.5rem;
+    right: 2rem;
+    margin-bottom: 2%;
+}
+
+.card-content .banner-button-group .banner-button {
+    height: 40px;
+    width: auto;
+    padding: 0 22px;
+    border-radius: 20px;
+    justify-content: center;
+    background: var(--anzhiyu-white);
+    color: var(--anzhiyu-black);
+    display: flex;
+    align-items: center;
+    transition: .3s;
+    cursor: pointer;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transform: translateZ(0);
+    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.2);
+}
+
+#page:has(#essay_page) .author-content-item .card-content .banner-button-group .banner-button:hover {
+    color: var(--anzhiyu-white);
+    background: var(--anzhiyu-pink);
+    border-radius: 20px !important;
+}
+
+/* ========== 瀑布流容器样式 ========== */
+#bber {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+#bber .timeline #waterfall {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    min-height: 200px;
+}
+
+#bber .timeline #waterfall.show {
+    opacity: 1;
+}
+
+#bber ul.list {
+    display: block;
+    position: relative;
+}
+
+/* ========== 短文项样式 ========== */
+#bber > section > ul > li.bber-item {
+    margin-bottom: 1rem;
+}
+
+#bber .timeline ul li.bber-item {
+    position: absolute;
+    width: 32%; /* 稍微减小宽度，为间距留出空间 */
+    border: var(--style-border-always);
+    border-radius: 12px;
+    padding: 1rem 1rem 0.5rem; /* 内边距 */
+    transition: all 0.3s ease;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: var(--anzhiyu-card-bg);
+    box-shadow: var(--anzhiyu-shadow-border);
+    margin-bottom: 1rem; /* 底部外边距 */
+    box-sizing: border-box;
+
+     /* 新增：为瀑布流布局添加间距 */
+    margin: 0 1% 1.5rem 1%; /* 左右1%的间距，底部1.5rem */
+}
+
+#bber .timeline ul li.bber-item:hover {
+    border: var(--style-border-hover);
+}
+
+/* ========== 短文内容样式 ========== */
+#bber div.bber-content {
+    display: flex;
+    flex-flow: wrap;
+    border-radius: 12px;
+    width: 100%;
+    height: 100%;
+}
+
+#bber .bber-content .datacont {
     order: 0;
     font-size: 0.8rem;
     font-weight: 700;
@@ -65,74 +149,77 @@
     display: flex;
     flex-direction: column;
     text-align: justify;
-  }
-  #bber p {
+}
+
+#bber p {
     margin: 0px;
-  }
-  #bber div.bber-content {
+}
+
+/* ========== 图片样式 ========== */
+#bber .bber-container-img {
     display: flex;
-    flex-flow: wrap;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    flex-wrap: wrap;
+    margin-bottom: 0.3rem;
+}
+
+#bber .bber-container-img .bber-content-noimg {
+    width: calc(100% / 4 - 5px);
+}
+
+#bber .bber-content-img img,
+#bber .bber-content-img-one img {
+    object-fit: cover;
+    max-height: 100%;
     border-radius: 12px;
     width: 100%;
-    height: 100%;
-  }
-  #bber .timeline ul li.bber-item {
+}
+
+#bber .bber-content-img {
+    height: 100px;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
     position: relative;
-    width: 32%;
-    border: var(--style-border-always);
+    width: calc(100% / 4 - 5px);
+    margin-bottom: 10px;
+}
+
+#bber .bber-content-img-one {
+    height: auto;
     border-radius: 12px;
-    padding: 1rem 1rem 0.5rem;
-    transition: all 0.3s ease 0s;
+    overflow: hidden;
     display: flex;
-    flex-flow: column nowrap;
-    justify-content: space-between;
-    align-items: flex-start;
-    background: var(--anzhiyu-card-bg);
-    box-shadow: var(--anzhiyu-shadow-border);
-    margin-right: 2%;
-  }
-  #bber .timeline #waterfall.show {
-    opacity: 1;
-  }
-  #bber .timeline #waterfall {
-    opacity: 0;
-    transition: all 0.3s ease 0s;
-  }
-  #bber ul.list {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-between;
-  }
-  #bber {
-    margin-top: 1rem;
+    position: relative;
     width: 100%;
-  }
-  #bber > section > ul > li.bber-item {
-    margin-bottom: 1rem;
-  }
-  
-  #bber-tips {
-    font-size: 14px;
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-  }
-  
-  #bber .timeline ul li.bber-item hr {
+    margin-bottom: 10px;
+}
+
+/* ========== 底部信息样式 ========== */
+#bber .timeline ul li.bber-item hr {
     display: flex;
     position: relative;
     margin: 8px 0px;
     border: 1px dashed var(--anzhiyu-theme-op);
     width: 100%;
-  }
-  
-  #bber .bber-info {
+}
+
+#bber .bber-bottom {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+}
+
+#bber .bber-info {
     display: flex;
     align-items: center;
-  }
-  
-  #bber > section > ul > li > div .bber-info-time,
-  #bber > section > ul > li > div .bber-info-from {
+}
+
+#bber > section > ul > li > div .bber-info-time,
+#bber > section > ul > li > div .bber-info-from {
     color: var(--anzhiyu-fontcolor);
     font-size: 0.7rem;
     background-color: var(--anzhiyu-gray-op);
@@ -141,32 +228,18 @@
     cursor: default;
     display: flex;
     align-items: center;
-  }
-  
-  #bber .bber-info .far.fa-clock {
+}
+
+#bber .bber-info .far.fa-clock {
     margin-right: 4px;
-  }
-  #bber > section > ul > li > div .bber-info-from span,
-  #bber > section > ul > li > div .bber-info-from {
+}
+
+#bber > section > ul > li > div .bber-info-from span,
+#bber > section > ul > li > div .bber-info-from {
     margin-left: 4px;
-  }
-  
-  #bber .bber-bottom {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: 10px;
-  }
-  
-  #bber .bber-bottom .bber-reply {
-    cursor: pointer;
-  }
-  
-  #bber .timeline ul li.bber-item:hover {
-    border: var(--style-border-hover);
-  }
-  
-  #bber .bber-content-link {
+}
+
+#bber .bber-content-link {
     display: flex;
     margin-left: 0.5rem;
     font-size: 0.7rem;
@@ -175,15 +248,23 @@
     color: rgb(245, 108, 108);
     padding: 0px 8px;
     border-radius: 20px;
-  }
-  #bber .bber-content-link i {
+}
+
+#bber .bber-content-link i {
     margin-right: 3px;
-  }
-  #bber .bber-content-link:hover {
+}
+
+#bber .bber-content-link:hover {
     background-color: var(--anzhiyu-main);
     color: var(--anzhiyu-white);
-  }
-  #bber .bber-music {
+}
+
+#bber .bber-bottom .bber-reply {
+    cursor: pointer;
+}
+
+/* ========== 音乐播放器样式 ========== */
+#bber .bber-music {
     width: 100%;
     height: 90px;
     margin: 0.5rem 0;
@@ -191,169 +272,278 @@
     overflow: hidden;
     border: var(--style-border-always);
     background: var(--anzhiyu-secondbg);
-  }
-  #bber .aplayer {
+}
+
+#bber .aplayer {
     margin: 0;
-  }
-  
-  #bber .aplayer.aplayer-withlrc .aplayer-pic {
+}
+
+#bber .aplayer.aplayer-withlrc .aplayer-pic {
     height: 82px;
     width: 82px;
     margin: 4px;
     border-radius: 4px;
-  }
-  .bber-music .aplayer.aplayer-withlrc .aplayer-info {
+}
+
+.bber-music .aplayer.aplayer-withlrc .aplayer-info {
     padding: 5px 7px 0;
-  }
-  #bber .aplayer .aplayer-info .aplayer-music {
+}
+
+#bber .aplayer .aplayer-info .aplayer-music {
     height: 23px;
-  }
-  #bber .aplayer .aplayer-info .aplayer-music .aplayer-title {
+}
+
+#bber .aplayer .aplayer-info .aplayer-music .aplayer-title {
     font-size: 0.8rem;
     font-weight: 700;
     margin: 0;
     color: var(--anzhiyu-fontcolor);
-  }
-  
-  #bber .aplayer .aplayer-info .aplayer-controller {
+}
+
+#bber .aplayer .aplayer-info .aplayer-controller {
     align-items: center;
-  }
-  #bber .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap {
+}
+
+#bber .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap {
     padding: 0;
-  }
-  #bber .aplayer .aplayer-info .aplayer-controller .aplayer-time {
+}
+
+#bber .aplayer .aplayer-info .aplayer-controller .aplayer-time {
     position: initial;
-  }
-  #bber .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar {
+}
+
+#bber .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar {
     background: var(--anzhiyu-gray);
     height: 8px;
     border-radius: 12px;
     transition: 0.3s;
     overflow: hidden;
-  }
-  #bber .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-loaded {
+}
+
+#bber .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-loaded {
     height: 100%;
     border-radius: 12px;
-  }
-  #bber .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-played {
+}
+
+#bber .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-played {
     height: 100%;
     border-radius: 12px;
-  }
-  #bber .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb {
+}
+
+#bber .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb {
     display: none;
-  }
-  #bber .aplayer .aplayer-info .aplayer-controller .aplayer-time {
+}
+
+#bber .aplayer .aplayer-info .aplayer-controller .aplayer-time {
     position: initial;
-  }
-  
-  /* 顶部样式 */
-  .author-content.author-content-item.essayPage {
-    height: 19rem;
-    background: url(https://youpai.hanvon.top/blog/FnL/2022_12_01.jpg) left 50% / cover no-repeat;
-    color: var(--anzhiyu-white);
+}
+
+/* ========== B站视频样式 ========== */
+#bber .aspect-ratio {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 宽高比 */
+    margin: 0.5rem 0;
+    border-radius: 8px;
     overflow: hidden;
-    margin-top: 0px;
-    border-radius: 24px;
-  }
-  #page:has(#essay_page) .author-content-item .card-content .banner-button-group .banner-button:hover {
+    border: var(--style-border-always);
+}
+
+#bber .aspect-ratio iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* ========== 提示信息样式 ========== */
+#bber-tips {
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    color: var(--anzhiyu-secondtext);
+}
+
+/* ========== 分页样式 ========== */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.pagination-item {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: var(--style-border-always);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--anzhiyu-fontcolor);
+    transition: all 0.3s ease;
+    background: var(--anzhiyu-card-bg);
+    cursor: pointer;
+    font-size: 0.9rem;
+    box-shadow: var(--anzhiyu-shadow-border);
+}
+
+.pagination-item:hover,
+.pagination-item.active {
+    background: var(--anzhiyu-main);
     color: var(--anzhiyu-white);
-    background: var(--anzhiyu-pink);
-    border-radius: 20px !important;
-  }
-  
-  /* 响应式 */
-  @media screen and (max-width: 1300px) {
-    #bber .timeline ul li.bber-item {
-      width: 49%;
-      margin-right: 1%;
-    }
-  }
-  @media screen and (max-width: 768px) {
-    #bber .timeline ul li.bber-item {
-      width: 100%;
-      margin-right: 0px;
-    }
-  }
-  [data-theme="dark"] #bber .bber-music .aplayer,
-  [data-theme="dark"] #bber .aplayer .aplayer-lrc:before,
-  [data-theme="dark"] #bber .aplayer .aplayer-lrc:after {
+    border-color: var(--anzhiyu-main);
+}
+
+.pagination-prev,
+.pagination-next {
+    background: var(--anzhiyu-secondbg);
+}
+
+/* ========== 暗色主题样式 ========== */
+[data-theme="dark"] #bber .bber-music .aplayer,
+[data-theme="dark"] #bber .aplayer .aplayer-lrc:before,
+[data-theme="dark"] #bber .aplayer .aplayer-lrc:after {
     background: var(--anzhiyu-card-bg);
     color: var(--anzhiyu-fontcolor);
-  }
-  #bber .aplayer .aplayer-lrc p {
+}
+
+#bber .aplayer .aplayer-lrc p {
     color: var(--anzhiyu-fontcolor);
-  }
+}
 
+/* ========== 字体和布局样式 ========== */
+.layout.hide-aside {
+    font-family: 'KaiTi', 'Microsoft YaHei', 'Arial', sans-serif;
+    max-width: 1400px;
+}
 
+/* ========== 响应式样式 ========== */
+@media screen and (max-width: 1300px) {
+    #bber .timeline ul li.bber-item {
+        /* width: 49%;
+        margin-right: 1%; */
+        width: 49%; /* 从49%调整到48% */
+        margin: 0 1% 1.5rem 1%; /* 保持一致的间距 */
+    }
+}
 
-  /* .author-content-item-tips{
-    margin-left: 2%;
-  } */
+@media screen and (max-width: 768px) {
+    #bber .timeline ul li.bber-item {
+        /* width: 100%;
+        margin-right: 0px; */
+        width: 98%; /* 从100%调整到98% */
+        margin: 0 1% 1.5rem 1%; /* 保持一致的间距 */
+        padding: 1.2rem; /* 移动端适当减小内边距 */
+    }
+    
+    .pagination {
+        gap: 0.3rem;
+    }
+    
+    .pagination-item {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .author-content.author-content-item.essayPage.single {
+        height: 15rem;
+    }
+    
+    .author-content-item-title {
+        font-size: 1.5rem;
+    }
+    
+    .card-content {
+        padding: 1rem;
+    }
+}
 
-  .author-content-item-title{
-    /* margin: 3%; */
-    font-size: 2rem;
-  }
-
-  .content-bottom .tips{
-    position: relative;
-    /* margin: 2%; */
-    bottom: 10px;
-  }
-
-
-
-  
-
-  .author-content-item .content-bottom {
-    margin-top: auto;
+/* ========== 加载状态样式 ========== */
+.essay-loading {
     display: flex;
+    justify-content: center;
     align-items: center;
-    justify-content: space-between;
-  }
-  
-.card-content{
-  width: 100%;
-  height: 100%; 
-  display: flex;
-  flex-direction: column;
-  padding: 1rem 2rem;
+    height: 200px;
+    color: var(--anzhiyu-secondtext);
+    font-size: 1rem;
 }
 
-
-
-
-.author-content-item .card-content .banner-button-group {
-  
-  bottom: 1.5rem;
-  right: 2rem;
-  margin-bottom: 2%;
+.essay-loading::after {
+    content: "加载中...";
+    animation: pulse 1.5s infinite;
 }
 
-
-.card-content .banner-button-group .banner-button {
-  height: 40px;
-  width: auto;
-  padding: 0 22px;
-  border-radius: 20px;
-  justify-content: center;
-  background: var(--anzhiyu-white);
-  color: var(--anzhiyu-black);
-  display: flex
-;
-  align-items: center;
-  transition: .3s;
-  cursor: pointer;
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  transform: translateZ(0);
-  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.2);
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
 }
 
-
-.layout.hide-aside{
-  font-family: 'KaiTi', 'Microsoft YaHei', 'Arial', sans-serif;
-  max-width: 1400px;
+/* ========== 错误状态样式 ========== */
+.essay-error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: var(--anzhiyu-red);
+    font-size: 1rem;
+    text-align: center;
+    padding: 0 1rem;
 }
 
+/* ========== 空状态样式 ========== */
+.essay-empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: var(--anzhiyu-secondtext);
+    font-size: 1rem;
+    text-align: center;
+    padding: 0 1rem;
+}
 
+/* ========== 平滑过渡样式 ========== */
+.bber-item {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.bber-item.fade-out {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.bber-item.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ========== 分页加载动画 ========== */
+.pagination-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.pagination-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid var(--anzhiyu-main);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

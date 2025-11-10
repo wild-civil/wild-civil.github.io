@@ -1,60 +1,120 @@
-function waterfall(a) {
-  function b(a, b) {
-    var c = window.getComputedStyle(b);
-    return parseFloat(c["margin" + a]) || 0;
-  }
-  function c(a) {
-    return a + "px";
-  }
-  function d(a) {
-    return parseFloat(a.style.top);
-  }
-  function e(a) {
-    return parseFloat(a.style.left);
-  }
-  function f(a) {
-    return a.clientWidth;
-  }
-  function g(a) {
-    return a.clientHeight;
-  }
-  function h(a) {
-    return d(a) + g(a) + b("Bottom", a);
-  }
-  function i(a) {
-    return e(a) + f(a) + b("Right", a);
-  }
-  function j(a) {
-    a = a.sort(function (a, b) {
-      return h(a) === h(b) ? e(b) - e(a) : h(b) - h(a);
+function waterfall(container) {
+    if (typeof container === 'string') {
+        container = document.querySelector(container);
+    }
+    
+    if (!container) return;
+
+    // 重置所有子元素
+    const items = Array.from(container.children);
+    items.forEach(item => {
+        item.style.position = '';
+        item.style.top = '';
+        item.style.left = '';
     });
-  }
-  function k(b) {
-    f(a) != t && (b.target.removeEventListener(b.type, arguments.callee), waterfall(a));
-  }
-  "string" == typeof a && (a = document.querySelector(a));
-  var l = [].map.call(a.children, function (a) {
-    return (a.style.position = "absolute"), a;
-  });
-  a.style.position = "relative";
-  var m = [];
-  l.length && ((l[0].style.top = "0px"), (l[0].style.left = c(b("Left", l[0]))), m.push(l[0]));
-  for (var n = 1; n < l.length; n++) {
-    var o = l[n - 1],
-      p = l[n],
-      q = i(o) + f(p) <= f(a);
-    if (!q) break;
-    (p.style.top = o.style.top), (p.style.left = c(i(o) + b("Left", p))), m.push(p);
-  }
-  for (; n < l.length; n++) {
-    j(m);
-    var p = l[n],
-      r = m.pop();
-    (p.style.top = c(h(r) + b("Top", p))), (p.style.left = c(e(r))), m.push(p);
-  }
-  j(m);
-  var s = m[0];
-  a.style.height = c(h(s) + b("Bottom", s));
-  var t = f(a);
-  window.addEventListener ? window.addEventListener("resize", k) : (document.body.onresize = k);
+
+    // 重置容器高度
+    container.style.height = '';
+
+    function getMargin(direction, element) {
+        const style = window.getComputedStyle(element);
+        return parseFloat(style[`margin${direction}`]) || 0;
+    }
+
+    function toPx(value) {
+        return value + 'px';
+    }
+
+    function getTop(element) {
+        return parseFloat(element.style.top) || 0;
+    }
+
+    function getLeft(element) {
+        return parseFloat(element.style.left) || 0;
+    }
+
+    function getWidth(element) {
+        return element.clientWidth;
+    }
+
+    function getHeight(element) {
+        return element.clientHeight;
+    }
+
+    function getBottom(element) {
+        return getTop(element) + getHeight(element) + getMargin('Bottom', element);
+    }
+
+    function getRight(element) {
+        return getLeft(element) + getWidth(element) + getMargin('Right', element);
+    }
+
+    function sortByBottom(elements) {
+        return elements.sort((a, b) => {
+            const bottomA = getBottom(a);
+            const bottomB = getBottom(b);
+            return bottomA === bottomB ? getLeft(b) - getLeft(a) : bottomB - bottomA;
+        });
+    }
+
+    const positionedItems = items.map(item => {
+        item.style.position = 'absolute';
+        return item;
+    });
+
+    container.style.position = 'relative';
+
+    const columns = [];
+    
+    if (positionedItems.length === 0) return;
+
+    // 设置第一个元素
+    positionedItems[0].style.top = '0px';
+    positionedItems[0].style.left = toPx(getMargin('Left', positionedItems[0]));
+    columns.push(positionedItems[0]);
+
+    // 布局其他元素
+    for (let i = 1; i < positionedItems.length; i++) {
+        const prevItem = positionedItems[i - 1];
+        const currentItem = positionedItems[i];
+        
+        const wouldFit = getRight(prevItem) + getWidth(currentItem) <= getWidth(container);
+        
+        if (!wouldFit) break;
+        
+        currentItem.style.top = prevItem.style.top;
+        currentItem.style.left = toPx(getRight(prevItem) + getMargin('Left', currentItem));
+        columns.push(currentItem);
+    }
+
+    // 处理剩余元素
+    for (let i = columns.length; i < positionedItems.length; i++) {
+        sortByBottom(columns);
+        const shortestColumn = columns.pop();
+        const currentItem = positionedItems[i];
+        
+        currentItem.style.top = toPx(getBottom(shortestColumn) + getMargin('Top', currentItem));
+        currentItem.style.left = toPx(getLeft(shortestColumn));
+        columns.push(currentItem);
+    }
+
+    // 设置容器高度
+    sortByBottom(columns);
+    const tallestColumn = columns[0];
+    container.style.height = toPx(getBottom(tallestColumn) + getMargin('Bottom', tallestColumn));
+
+    // 响应式处理
+    let resizeTimer;
+    function handleResize() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            waterfall(container);
+        }, 250);
+    }
+
+    if (window.addEventListener) {
+        window.addEventListener('resize', handleResize);
+    } else {
+        window.onresize = handleResize;
+    }
 }
