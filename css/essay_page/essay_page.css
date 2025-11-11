@@ -868,8 +868,8 @@
 /* ========== 移动端按钮优化 - 完全修复显示问题 ========== */
 @media screen and (max-width: 480px) {
     .author-content.author-content-item.essayPage.single {
-        height: 18rem; /* 增加移动端横幅高度，为按钮提供更多空间 */
-        min-height: 18rem; /* 确保最小高度 */
+        height: 19rem; /* 增加移动端横幅高度，为按钮提供更多空间 */
+        min-height: 19rem; /* 确保最小高度 */
     }
     
     .author-content-item .content-bottom {
@@ -889,11 +889,11 @@
         min-width: 100%;
         width: 100%;
         justify-content: center;
-        padding: 14px 1rem; /* 增加垂直内边距 */
+        padding: 12px 1rem; /* 增加垂直内边距 */
         font-size: 0.95rem; /* 稍微增大字体 */
-        min-height: 52px; /* 设置最小高度确保按钮完整显示 */ 
+        min-height: 43px; /* 设置最小高度确保按钮完整显示 */ 
         height: auto; /* 高度自适应 */
-        line-height: 1.4; /* 设置行高确保文字垂直居中 */
+        line-height: 1.2; /* 设置行高确保文字垂直居中 */
     }
     
     /* 确保按钮文字完整显示 */
@@ -901,7 +901,7 @@
         white-space: nowrap;
         overflow: visible;
         text-overflow: clip;
-        min-width: 60px; /* 为文字设置最小宽度 */
+        min-width: 50px; /* 为文字设置最小宽度 */
         text-align: center;
         display: flex;
         align-items: center;
@@ -936,12 +936,12 @@
     .card-content .banner-button-group .banner-button {
         font-size: 0.9rem;
         padding: 12px 0.8rem;
-        min-height: 48px; /* 小屏幕稍微减小高度 */
+        min-height: 40px; /* 小屏幕稍微减小高度 */
     }
     
     .banner-button-text {
         letter-spacing: -0.3px;
-        min-width: 55px;
+        min-width: 50px;
     }
     
     .card-content {
