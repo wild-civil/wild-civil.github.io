@@ -11,22 +11,22 @@ var essayManager = {
     privateItemsPerPage: 6, // 可以和公开区不同
     allPrivateEssays: [], // 存储所有个人短文数据
 
+
     init: function() {
-        this.loadEssayData();
         this.setupEventListeners();
-        this.restoreState();
+        this.restoreState();  // 先恢复状态
+        this.loadEssayData(); // 然后加载数据，这样渲染就会使用恢复后的状态
         this.initPrivateZoneModal();
-        
-        // 添加浏览器历史记录监听
-        this.setupHistoryListener();
+        this.setupHistoryListener(); // 添加浏览器历史记录监听
     },
     
+
     loadEssayData: function() {
         // 从全局变量或直接数据加载
         if (window.essayData && Array.isArray(window.essayData)) {
             this.allEssays = this.flattenEssayData(window.essayData);
             this.renderPagination();
-            this.renderCurrentPage();
+            this.renderCurrentPage(); // 这里会使用恢复后的页码
         } else {
             console.error('Essay data not found');
         }
@@ -761,6 +761,7 @@ var essayManager = {
     },
 
     restoreState: function() {
+        // 从sessionStorage恢复
         const savedPage = parseInt(sessionStorage.getItem('essayCurrentPage'));
         if (savedPage && !isNaN(savedPage)) {
             this.currentPage = savedPage;
@@ -783,13 +784,24 @@ var essayManager = {
         const privatePage = parseInt(urlParams.get('privatePage')) || 1;
         const publicPage = parseInt(urlParams.get('publicPage')) || 1;
         
+        // 添加公开区URL参数处理
+        if (urlParams.has('publicPage')) {
+            this.currentPage = publicPage;
+        }
+        
         if (privateParam === '1') {
             this.privateUnlocked = true;
             this.privateCurrentPage = privatePage;
-            this.currentPage = publicPage;
+            // 这里也要更新公开区页码
+            if (urlParams.has('publicPage')) {
+                this.currentPage = publicPage;
+            }
             this.unlockPrivateZone();
             this.renderPagination();
         }
+        
+        // 确保渲染正确的页码
+        this.renderPagination();
     },
 
     setupEventListeners: function() {
