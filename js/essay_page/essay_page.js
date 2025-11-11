@@ -6,6 +6,8 @@ var essayManager = {
 
     privateUnlocked: false,
     privatePassword: "123456", // 默认密码，修改进入个人区域
+    privateCurrentPage: 1,
+    privateItemsPerPage: 6, // 可以和公开区不同
 
     init: function() {
         this.loadEssayData();
@@ -29,8 +31,9 @@ var essayManager = {
     // 在 loadEssayData 方法后添加个人区相关方法
     loadPrivateEssayData: function() {
         if (window.privateEssayData && Array.isArray(window.privateEssayData)) {
-            const privateEssays = this.flattenEssayData(window.privateEssayData);
-            this.renderPrivateEssays(privateEssays);
+            const allPrivateEssays = this.flattenEssayData(window.privateEssayData);
+            this.renderPrivateEssays(allPrivateEssays);
+            this.renderPrivatePagination(allPrivateEssays.length); // 个人短文也支持分页
         } else {
             this.showEmptyPrivateZone();
         }

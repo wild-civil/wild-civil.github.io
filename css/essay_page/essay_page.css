@@ -590,7 +590,7 @@
 }
 
 /* 个人区按钮样式 */
-#privateZoneBtn {
+/* #privateZoneBtn {
     background: var(--anzhiyu-secondbg) !important;
     border: 1px solid var(--anzhiyu-green) !important;
 }
@@ -598,6 +598,16 @@
 #privateZoneBtn.unlocked {
     background: var(--anzhiyu-green) !important;
     color: var(--anzhiyu-white) !important;
+} */
+
+/* 个人区按钮样式 */
+#privateZoneBtn {
+    background: linear-gradient(135deg, var(--anzhiyu-green), var(--anzhiyu-blue));
+    color: var(--anzhiyu-white) !important;
+}
+
+#privateZoneBtn.unlocked {
+    background: linear-gradient(135deg, var(--anzhiyu-red), var(--anzhiyu-orange));
 }
 
 /* 模态框动画 */
@@ -871,6 +881,20 @@
     }
 }
 
+/* @media screen and (max-width: 480px) {
+    .banner-button-group {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.75rem;
+    }
+    
+    .card-content .banner-button-group .banner-button {
+        min-width: 100%;
+        width: 100%;
+    }
+} */
+
+/* ========== 移动端按钮优化 ========== */
 @media screen and (max-width: 480px) {
     .banner-button-group {
         flex-direction: column;
@@ -881,5 +905,33 @@
     .card-content .banner-button-group .banner-button {
         min-width: 100%;
         width: 100%;
+        justify-content: center;
+        padding: 0.8rem 1rem; /* 调整内边距 */
+        font-size: 0.9rem; /* 稍微减小字体 */
+    }
+    
+    /* 确保按钮文字完整显示 */
+    .banner-button-text {
+        white-space: nowrap;
+        overflow: visible;
+        text-overflow: clip;
+    }
+    
+    /* 如果有需要，可以进一步调整图标和文字的比例 */
+    .card-content .banner-button-group .banner-button i {
+        font-size: 1rem; /* 移动端图标稍微小一点 */
+        min-width: 20px; /* 确保图标有固定宽度 */
+    }
+}
+
+/* 针对更小的屏幕进一步优化 */
+@media screen and (max-width: 360px) {
+    .card-content .banner-button-group .banner-button {
+        font-size: 0.85rem; /* 进一步减小字体 */
+        padding: 0.7rem 0.8rem;
+    }
+    
+    .banner-button-text {
+        letter-spacing: -0.5px; /* 稍微压缩字间距 */
     }
 }
