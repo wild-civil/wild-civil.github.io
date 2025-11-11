@@ -10,12 +10,41 @@ var essayManager = {
     privateItemsPerPage: 6, // 可以和公开区不同
     allPrivateEssays: [], // 存储所有个人短文数据
 
+    // 添加状态管理
+    previousState: null,
+
     init: function() {
         this.setupEventListeners();
-        this.restoreState();  // 先恢复状态
-        this.loadEssayData(); // 然后加载数据，这样渲染就会使用恢复后的状态
+        this.restoreState();
+        this.loadEssayData();
         this.initPrivateZoneModal();
-        this.setupHistoryListener(); // 添加浏览器历史记录监听
+        this.setupHistoryListener();
+        this.saveCurrentState(); // 保存初始状态
+    },
+
+    // 保存当前状态到sessionStorage
+    saveCurrentState: function() {
+        const state = {
+            publicPage: this.currentPage,
+            privateUnlocked: this.privateUnlocked,
+            privatePage: this.privateCurrentPage,
+            timestamp: Date.now()
+        };
+        sessionStorage.setItem('essayCurrentState', JSON.stringify(state));
+    },
+
+    // 获取之前保存的状态
+    getPreviousState: function() {
+        const savedState = sessionStorage.getItem('essayPreviousState');
+        return savedState ? JSON.parse(savedState) : null;
+    },
+
+    // 保存为之前的状态
+    saveAsPreviousState: function() {
+        const currentState = sessionStorage.getItem('essayCurrentState');
+        if (currentState) {
+            sessionStorage.setItem('essayPreviousState', currentState);
+        }
     },
 
     loadEssayData: function() {
@@ -23,7 +52,7 @@ var essayManager = {
         if (window.essayData && Array.isArray(window.essayData)) {
             this.allEssays = this.flattenEssayData(window.essayData);
             this.renderPagination();
-            this.renderCurrentPage(); // 这里会使用恢复后的页码
+            this.renderCurrentPage();
         } else {
             console.error('Essay data not found');
         }
@@ -158,6 +187,9 @@ var essayManager = {
             return;
         }
 
+        // 保存当前状态为之前状态
+        this.saveAsPreviousState();
+        
         this.privateCurrentPage = page;
         this.saveState();
         this.renderPrivatePagination();
@@ -165,6 +197,9 @@ var essayManager = {
         
         // 更新URL状态但不刷新页面
         this.updatePrivateURLState();
+        
+        // 保存新状态
+        this.saveCurrentState();
     },
 
     prevPrivatePage: function() {
@@ -301,6 +336,9 @@ var essayManager = {
     },
 
     unlockPrivateZone: function() {
+        // 保存当前状态为之前状态
+        this.saveAsPreviousState();
+        
         this.privateUnlocked = true;
         this.saveState();
         
@@ -321,6 +359,9 @@ var essayManager = {
         // 更新URL状态
         this.updatePrivateURLState();
         
+        // 保存新状态
+        this.saveCurrentState();
+        
         // 滚动到个人区
         setTimeout(() => {
             privateZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -328,6 +369,9 @@ var essayManager = {
     },
 
     lockPrivateZone: function() {
+        // 保存当前状态为之前状态
+        this.saveAsPreviousState();
+        
         this.privateUnlocked = false;
         this.privateCurrentPage = 1; // 重置个人区页码
         this.saveState();
@@ -347,9 +391,12 @@ var essayManager = {
         
         // 清除URL中的个人区状态
         this.clearPrivateURLState();
+        
+        // 保存新状态
+        this.saveCurrentState();
     },
 
-    // 更新URL状态以支持浏览器返回按钮 - 使用 replaceState 而不是 pushState
+    // 更新URL状态以支持浏览器返回按钮
     updatePrivateURLState: function() {
         if (!this.privateUnlocked) return;
         
@@ -359,7 +406,7 @@ var essayManager = {
             publicPage: this.currentPage
         };
         
-        // 使用 replaceState 而不是 pushState
+        // 使用replaceState而不是pushState，避免产生过多历史记录
         const url = new URL(window.location);
         url.searchParams.set('private', '1');
         url.searchParams.set('privatePage', this.privateCurrentPage);
@@ -389,40 +436,52 @@ var essayManager = {
                 return;
             }
             
-            // 优先使用event.state，如果没有则从URL参数恢复
-            let state = event.state;
-            
-            if (!state) {
-                // 从URL参数恢复状态
+            // 尝试从之前保存的状态恢复
+            const previousState = this.getPreviousState();
+            if (previousState) {
+                // 恢复状态
+                this.currentPage = previousState.publicPage || 1;
+                this.privateUnlocked = previousState.privateUnlocked || false;
+                this.privateCurrentPage = previousState.privatePage || 1;
+                
+                // 更新UI
+                this.renderPagination();
+                this.renderCurrentPage();
+                
+                if (this.privateUnlocked) {
+                    this.unlockPrivateZone();
+                } else {
+                    this.lockPrivateZone();
+                }
+                
+                this.saveState();
+                
+                // 更新当前状态
+                this.saveCurrentState();
+            } else {
+                // 如果没有之前的状态，从URL参数恢复
                 const urlParams = new URLSearchParams(window.location.search);
                 const publicPage = parseInt(urlParams.get('publicPage')) || 1;
                 const privateParam = urlParams.get('private');
                 const privatePage = parseInt(urlParams.get('privatePage')) || 1;
                 
-                state = {
-                    publicPage: publicPage,
-                    privateUnlocked: privateParam === '1',
-                    privatePage: privatePage
-                };
-            }
-            
-            // 恢复状态
-            if (state.publicPage !== undefined) {
-                this.currentPage = state.publicPage;
+                this.currentPage = publicPage;
+                this.privateUnlocked = privateParam === '1';
+                this.privateCurrentPage = privatePage;
+                
+                // 更新UI
                 this.renderPagination();
                 this.renderCurrentPage();
+                
+                if (this.privateUnlocked) {
+                    this.unlockPrivateZone();
+                } else {
+                    this.lockPrivateZone();
+                }
+                
+                this.saveState();
+                this.saveCurrentState();
             }
-            
-            if (state.privateUnlocked) {
-                this.privateUnlocked = true;
-                this.privateCurrentPage = state.privatePage || 1;
-                this.unlockPrivateZone();
-            } else {
-                this.privateUnlocked = false;
-                this.lockPrivateZone();
-            }
-            
-            this.saveState();
         });
     },
 
@@ -455,11 +514,11 @@ var essayManager = {
             this.isLoading = false;
         }, 100);
         
-        // 更新URL状态 - 使用 replaceState
+        // 更新URL状态
         this.updatePublicURLState();
     },
 
-    // 更新公开区URL状态 - 使用 replaceState
+    // 更新公开区URL状态
     updatePublicURLState: function() {
         const state = {
             publicPage: this.currentPage,
@@ -478,7 +537,6 @@ var essayManager = {
             url.searchParams.delete('privatePage');
         }
         
-        // 使用 replaceState 而不是 pushState
         window.history.replaceState(state, '', url);
     },
 
@@ -709,10 +767,16 @@ var essayManager = {
             return;
         }
 
+        // 保存当前状态为之前状态
+        this.saveAsPreviousState();
+        
         this.currentPage = page;
         this.saveState();
         this.renderPagination();
         this.renderCurrentPage();
+        
+        // 保存新状态
+        this.saveCurrentState();
         
         // 滚动到顶部
         setTimeout(() => {
