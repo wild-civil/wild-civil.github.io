@@ -426,7 +426,6 @@
 /* ========== 响应式样式 ========== */
 @media screen and (max-width: 1300px) {
     #bber .timeline ul li.bber-item {
-        /* width: 49%; */
         width: 48%; /* 从49%调整到48% */
         margin: 0 1% 1.5rem 1%; /* 保持一致的间距 */
     }
@@ -434,7 +433,6 @@
 
 @media screen and (max-width: 768px) {
     #bber .timeline ul li.bber-item {
-        /* width: 100%; */
         width: 98%; /* 从100%调整到98% */
         margin: 0 1% 1.5rem 1%; /* 保持一致的间距 */
         padding: 1.2rem; /* 移动端适当减小内边距 */
@@ -586,16 +584,7 @@
     border-top: 2px dashed var(--anzhiyu-theme-op);
 }
 
-/* 个人区按钮样式 */
-/* #privateZoneBtn {
-    background: var(--anzhiyu-secondbg) !important;
-    border: 1px solid var(--anzhiyu-green) !important;
-}
-#privateZoneBtn.unlocked {
-    background: var(--anzhiyu-green) !important;
-    color: var(--anzhiyu-white) !important;
-} */
- 
+
  /* 个人区按钮特殊样式 */
 #privateZoneBtn {
     /* 背景：135度角度的渐变，从绿色渐变到蓝色 */
@@ -609,19 +598,6 @@
     background: var(--anzhiyu-green) !important;
     color: var(--anzhiyu-white) !important;
 }
-
-/* 方案2：不同的渐变方向 */
-/* #privateZoneBtn {
-    紫蓝色渐变
-    background: linear-gradient(45deg, #667eea, #764ba2);
-}
-
-#privateZoneBtn.unlocked {
-    粉红色渐变
-    background: linear-gradient(45deg, #f093fb, #f5576c); 
-} */
-
-
 
 /* 模态框动画 */
 #privateZoneModal {
@@ -889,7 +865,7 @@
     }
 }
 
-/* ========== 移动端按钮优化 - 修复文字显示问题 ========== */
+/* ========== 移动端按钮优化 - 修复按钮显示不全问题 ========== */
 @media screen and (max-width: 480px) {
     .banner-button-group {
         flex-direction: column;
@@ -901,8 +877,10 @@
         min-width: 100%;
         width: 100%;
         justify-content: center;
-        padding: 0.8rem 1rem; /* 调整内边距 */
-        font-size: 0.9rem; /* 稍微减小字体 */
+        padding: 12px 1rem; /* 增加垂直内边距，确保按钮高度足够 */
+        font-size: 0.9rem;
+        min-height: 48px; /* 设置最小高度确保按钮完整显示 */
+        height: auto; /* 高度自适应 */
     }
     
     /* 确保按钮文字完整显示 */
@@ -910,28 +888,34 @@
         white-space: nowrap;
         overflow: visible;
         text-overflow: clip;
-        /* 修复：确保"个人区"文字完整显示 */
         min-width: 60px; /* 为文字设置最小宽度 */
         text-align: center;
+        line-height: 1.2; /* 确保文字垂直居中 */
     }
     
-    /* 如果有需要，可以进一步调整图标和文字的比例 */
+    /* 按钮图标样式 */
     .card-content .banner-button-group .banner-button i {
-        font-size: 1rem; /* 移动端图标稍微小一点 */
-        min-width: 20px; /* 确保图标有固定宽度 */
+        font-size: 1rem;
+        min-width: 20px;
+    }
+    
+    /* 确保按钮容器有足够空间 */
+    .author-content-item .content-bottom {
+        gap: 1.5rem; /* 增加内容底部间距 */
     }
 }
 
 /* 针对更小的屏幕进一步优化 */
 @media screen and (max-width: 360px) {
     .card-content .banner-button-group .banner-button {
-        font-size: 0.85rem; /* 进一步减小字体 */
-        padding: 0.7rem 0.8rem;
+        font-size: 0.85rem;
+        padding: 10px 0.8rem;
+        min-height: 44px; /* 小屏幕稍微减小高度 */
     }
     
     .banner-button-text {
-        letter-spacing: -0.5px; /* 稍微压缩字间距 */
-        min-width: 55px; /* 为小屏幕进一步调整最小宽度 */
+        letter-spacing: -0.5px;
+        min-width: 55px;
     }
 }
 
