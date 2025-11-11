@@ -867,6 +867,19 @@
 }
 
 
+
+
+/* ========== 顶部横幅样式 ========== */
+.author-content.author-content-item.essayPage.single {
+    height: 19rem;
+    background: url(https://youpai.hanvon.top/blog/FnL/2022_12_01.jpg) center center / contain no-repeat; /* 改为contain保持原貌，居中显示 */
+    color: var(--anzhiyu-white);
+    overflow: hidden;
+    margin-top: 0px;
+    border-radius: 24px;
+    background-color: var(--anzhiyu-background); /* 添加背景色，防止图片不覆盖的区域显示异常 */
+}
+
 /* ========== 顶部横幅布局优化 ========== */
 .author-content.author-content-item.essayPage.single .card-content {
     padding: 2rem 2.5rem; /* 增加内边距 */
@@ -959,45 +972,47 @@
     color: var(--anzhiyu-white);
 }
 
-/* ========== 移动端按钮优化 - 减小宽度并右对齐 ========== */
+/* ========== 移动端按钮优化 - 垂直排列并靠右 ========== */
 @media screen and (max-width: 480px) {
     .author-content.author-content-item.essayPage.single {
         height: 22rem; /* 增加移动端横幅高度，为按钮提供更多空间 */
         min-height: 22rem; /* 确保最小高度 */
+        background-size: cover; /* 移动端使用cover确保图片填充，或者使用contain保持原貌 */
+        background-position: center center; /* 确保图片居中 */
     }
     
     .author-content-item .content-bottom {
         gap: 1.2rem; /* 增加底部内容间距 */
         margin-top: auto;
         padding-bottom: 1rem; /* 增加底部内边距 */
-        flex-direction: row; /* 确保水平布局 */
+        flex-direction: row; /* 保持水平布局 */
         justify-content: space-between; /* 左侧提示文字，右侧按钮 */
         align-items: flex-end; /* 底部对齐 */
     }
     
     .banner-button-group {
-        flex-direction: row; /* 水平排列按钮 */
+        flex-direction: column; /* 改为垂直排列 */
         width: auto; /* 自动宽度 */
-        gap: 0.8rem; /* 减小按钮间距 */
+        gap: 0.8rem; /* 按钮间距 */
         margin-bottom: 0;
         justify-content: flex-end; /* 按钮右对齐 */
-        flex-wrap: nowrap; /* 防止换行 */
+        align-items: flex-end; /* 按钮内容右对齐 */
     }
     
     .card-content .banner-button-group .banner-button {
-        min-width: 90px; /* 移动端进一步减小最小宽度 */
-        max-width: 110px; /* 移动端最大宽度 */
+        min-width: 110px; /* 移动端适当宽度 */
+        max-width: 130px;
         width: auto; /* 自动宽度 */
         justify-content: center;
-        padding: 12px 0.8rem; /* 减小内边距 */
-        font-size: 0.9rem; /* 稍微减小字体 */
-        min-height: 44px; /* 减小最小高度 */
+        padding: 12px 1rem; /* 内边距 */
+        font-size: 0.9rem;
+        min-height: 44px;
         height: auto;
         line-height: 1.4;
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0; /* 防止按钮被压缩 */
+        flex-shrink: 0;
     }
     
     /* 确保按钮文字完整显示 */
@@ -1005,36 +1020,36 @@
         white-space: nowrap;
         overflow: visible;
         text-overflow: clip;
-        min-width: auto; /* 自动最小宽度 */
+        min-width: auto;
         text-align: center;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem; /* 稍微减小字体 */
+        font-size: 0.85rem;
     }
     
     /* 按钮图标样式 */
     .card-content .banner-button-group .banner-button i {
-        font-size: 1rem; /* 移动端图标稍微小一点 */
+        font-size: 1rem;
         min-width: 18px;
-        margin-right: 4px; /* 减小图标和文字间距 */
+        margin-right: 4px;
     }
     
     /* 调整卡片内容的内边距 */
     .card-content {
-        padding: 1.5rem 1.2rem; /* 移动端调整内边距 */
+        padding: 1.5rem 1.2rem;
     }
     
     /* 调整标题区域，为按钮腾出更多空间 */
     .author-content-item-tips, 
     .author-content-item-title {
-        margin-bottom: 0.5rem; /* 减小标题底部边距 */
+        margin-bottom: 0.5rem;
     }
     
     /* 提示文字样式调整 */
     .content-bottom .tips {
-        font-size: 0.9rem; /* 稍微减小提示文字 */
-        align-self: flex-end; /* 底部对齐 */
+        font-size: 0.9rem;
+        align-self: flex-end;
         margin-bottom: 0;
     }
 }
@@ -1042,18 +1057,18 @@
 /* 针对更小的屏幕进一步优化 */
 @media screen and (max-width: 360px) {
     .author-content.author-content-item.essayPage.single {
-        height: 20rem; /* 小屏幕稍微减小高度 */
+        height: 20rem;
         min-height: 20rem;
     }
     
     .banner-button-group {
-        gap: 0.6rem; /* 进一步减小按钮间距 */
+        gap: 0.6rem;
     }
     
     .card-content .banner-button-group .banner-button {
-        min-width: 85px; /* 进一步减小最小宽度 */
-        max-width: 100px;
-        padding: 10px 0.7rem;
+        min-width: 100px;
+        max-width: 120px;
+        padding: 10px 0.8rem;
         min-height: 42px;
         font-size: 0.85rem;
     }
@@ -1064,11 +1079,11 @@
     }
     
     .card-content {
-        padding: 1.2rem 1rem; /* 小屏幕进一步调整内边距 */
+        padding: 1.2rem 1rem;
     }
     
     .content-bottom .tips {
-        font-size: 0.85rem; /* 小屏幕提示文字更小 */
+        font-size: 0.85rem;
     }
 }
 
@@ -1084,9 +1099,9 @@
     }
     
     .card-content .banner-button-group .banner-button {
-        min-width: 80px;
-        max-width: 90px;
-        padding: 8px 0.6rem;
+        min-width: 95px;
+        max-width: 110px;
+        padding: 8px 0.7rem;
         min-height: 40px;
         font-size: 0.8rem;
     }
@@ -1102,4 +1117,30 @@
     .content-bottom .tips {
         font-size: 0.8rem;
     }
+}
+
+/* ========== 个人区分页样式 - 确保居中显示 ========== */
+.private-pagination {
+    display: flex;
+    justify-content: center; /* 确保分页居中 */
+    margin: 1.5rem 0;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    width: 100%; /* 确保占据全宽 */
+}
+
+.private-pagination .pagination-item {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+}
+
+/* ========== 个人区提示信息样式 - 确保居中显示 ========== */
+#private-bber-tips {
+    font-size: 13px;
+    display: flex;
+    justify-content: center; /* 确保居中 */
+    margin-top: 0.5rem;
+    color: var(--anzhiyu-secondtext);
+    width: 100%; /* 确保占据全宽 */
+    text-align: center; /* 文字居中 */
 }
