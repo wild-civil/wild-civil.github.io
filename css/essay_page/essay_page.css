@@ -970,3 +970,41 @@
     margin-top: 0.5rem;
     color: var(--anzhiyu-secondtext);
 }
+
+
+
+/* Essay页面分页样式 */
+#essay-pagination .pagination {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+#essay-pagination .pagination-item {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: var(--style-border-always);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--anzhiyu-fontcolor);
+    transition: all 0.3s ease;
+    background: var(--anzhiyu-card-bg);
+    cursor: pointer;
+    font-size: 0.9rem;
+    box-shadow: var(--anzhiyu-shadow-border);
+}
+
+#essay-pagination .pagination-item:hover,
+#essay-pagination .pagination-item.active {
+    background: var(--anzhiyu-main);
+    color: var(--anzhiyu-white);
+    border-color: var(--anzhiyu-main);
+}
+
+#essay-pagination .pagination-prev,
+#essay-pagination .pagination-next {
+    background: var(--anzhiyu-secondbg);
+}

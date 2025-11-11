@@ -10,41 +10,23 @@ var essayManager = {
     privateItemsPerPage: 6, // 可以和公开区不同
     allPrivateEssays: [], // 存储所有个人短文数据
 
-    // 添加状态管理
-    previousState: null,
-
     init: function() {
+        // 只在essay页面初始化
+        if (!this.isEssayPage()) {
+            return;
+        }
+        
         this.setupEventListeners();
         this.restoreState();
         this.loadEssayData();
         this.initPrivateZoneModal();
         this.setupHistoryListener();
-        this.saveCurrentState(); // 保存初始状态
     },
 
-    // 保存当前状态到sessionStorage
-    saveCurrentState: function() {
-        const state = {
-            publicPage: this.currentPage,
-            privateUnlocked: this.privateUnlocked,
-            privatePage: this.privateCurrentPage,
-            timestamp: Date.now()
-        };
-        sessionStorage.setItem('essayCurrentState', JSON.stringify(state));
-    },
-
-    // 获取之前保存的状态
-    getPreviousState: function() {
-        const savedState = sessionStorage.getItem('essayPreviousState');
-        return savedState ? JSON.parse(savedState) : null;
-    },
-
-    // 保存为之前的状态
-    saveAsPreviousState: function() {
-        const currentState = sessionStorage.getItem('essayCurrentState');
-        if (currentState) {
-            sessionStorage.setItem('essayPreviousState', currentState);
-        }
+    // 检查当前是否在essay页面
+    isEssayPage: function() {
+        const currentPath = window.location.pathname;
+        return currentPath.includes('/essay/') || currentPath.endsWith('/essay') || document.getElementById('waterfall_public');
     },
 
     loadEssayData: function() {
@@ -162,6 +144,7 @@ var essayManager = {
         prevButton.className = 'pagination-item pagination-prev';
         prevButton.innerHTML = '&laquo; 上一页';
         prevButton.onclick = () => this.prevPrivatePage();
+        prevButton.href = 'javascript:void(0);';
         paginationContainer.appendChild(prevButton);
 
         // 添加页码
@@ -170,6 +153,7 @@ var essayManager = {
             pageButton.className = `pagination-item ${i === this.privateCurrentPage ? 'active' : ''}`;
             pageButton.textContent = i;
             pageButton.onclick = () => this.goToPrivatePage(i);
+            pageButton.href = 'javascript:void(0);';
             paginationContainer.appendChild(pageButton);
         }
 
@@ -178,6 +162,7 @@ var essayManager = {
         nextButton.className = 'pagination-item pagination-next';
         nextButton.innerHTML = '下一页 &raquo;';
         nextButton.onclick = () => this.nextPrivatePage();
+        nextButton.href = 'javascript:void(0);';
         paginationContainer.appendChild(nextButton);
     },
 
@@ -187,19 +172,10 @@ var essayManager = {
             return;
         }
 
-        // 保存当前状态为之前状态
-        this.saveAsPreviousState();
-        
         this.privateCurrentPage = page;
         this.saveState();
         this.renderPrivatePagination();
         this.renderPrivateCurrentPage();
-        
-        // 更新URL状态但不刷新页面
-        this.updatePrivateURLState();
-        
-        // 保存新状态
-        this.saveCurrentState();
     },
 
     prevPrivatePage: function() {
@@ -336,9 +312,6 @@ var essayManager = {
     },
 
     unlockPrivateZone: function() {
-        // 保存当前状态为之前状态
-        this.saveAsPreviousState();
-        
         this.privateUnlocked = true;
         this.saveState();
         
@@ -356,12 +329,6 @@ var essayManager = {
             this.loadPrivateEssayData();
         }
         
-        // 更新URL状态
-        this.updatePrivateURLState();
-        
-        // 保存新状态
-        this.saveCurrentState();
-        
         // 滚动到个人区
         setTimeout(() => {
             privateZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -369,9 +336,6 @@ var essayManager = {
     },
 
     lockPrivateZone: function() {
-        // 保存当前状态为之前状态
-        this.saveAsPreviousState();
-        
         this.privateUnlocked = false;
         this.privateCurrentPage = 1; // 重置个人区页码
         this.saveState();
@@ -388,40 +352,6 @@ var essayManager = {
         if (privateZone) {
             privateZone.style.display = 'none';
         }
-        
-        // 清除URL中的个人区状态
-        this.clearPrivateURLState();
-        
-        // 保存新状态
-        this.saveCurrentState();
-    },
-
-    // 更新URL状态以支持浏览器返回按钮
-    updatePrivateURLState: function() {
-        if (!this.privateUnlocked) return;
-        
-        const state = {
-            privateUnlocked: true,
-            privatePage: this.privateCurrentPage,
-            publicPage: this.currentPage
-        };
-        
-        // 使用replaceState而不是pushState，避免产生过多历史记录
-        const url = new URL(window.location);
-        url.searchParams.set('private', '1');
-        url.searchParams.set('privatePage', this.privateCurrentPage);
-        url.searchParams.set('publicPage', this.currentPage);
-        
-        window.history.replaceState(state, '', url);
-    },
-
-    clearPrivateURLState: function() {
-        const url = new URL(window.location);
-        url.searchParams.delete('private');
-        url.searchParams.delete('privatePage');
-        url.searchParams.set('publicPage', this.currentPage);
-        
-        window.history.replaceState({}, '', url);
     },
 
     // 设置历史记录监听
@@ -436,52 +366,27 @@ var essayManager = {
                 return;
             }
             
-            // 尝试从之前保存的状态恢复
-            const previousState = this.getPreviousState();
-            if (previousState) {
-                // 恢复状态
-                this.currentPage = previousState.publicPage || 1;
-                this.privateUnlocked = previousState.privateUnlocked || false;
-                this.privateCurrentPage = previousState.privatePage || 1;
-                
-                // 更新UI
-                this.renderPagination();
-                this.renderCurrentPage();
-                
-                if (this.privateUnlocked) {
-                    this.unlockPrivateZone();
-                } else {
-                    this.lockPrivateZone();
-                }
-                
-                this.saveState();
-                
-                // 更新当前状态
-                this.saveCurrentState();
+            // 从URL参数恢复状态
+            const urlParams = new URLSearchParams(window.location.search);
+            const publicPage = parseInt(urlParams.get('publicPage')) || 1;
+            const privateParam = urlParams.get('private');
+            const privatePage = parseInt(urlParams.get('privatePage')) || 1;
+            
+            this.currentPage = publicPage;
+            this.privateUnlocked = privateParam === '1';
+            this.privateCurrentPage = privatePage;
+            
+            // 更新UI
+            this.renderPagination();
+            this.renderCurrentPage();
+            
+            if (this.privateUnlocked) {
+                this.unlockPrivateZone();
             } else {
-                // 如果没有之前的状态，从URL参数恢复
-                const urlParams = new URLSearchParams(window.location.search);
-                const publicPage = parseInt(urlParams.get('publicPage')) || 1;
-                const privateParam = urlParams.get('private');
-                const privatePage = parseInt(urlParams.get('privatePage')) || 1;
-                
-                this.currentPage = publicPage;
-                this.privateUnlocked = privateParam === '1';
-                this.privateCurrentPage = privatePage;
-                
-                // 更新UI
-                this.renderPagination();
-                this.renderCurrentPage();
-                
-                if (this.privateUnlocked) {
-                    this.unlockPrivateZone();
-                } else {
-                    this.lockPrivateZone();
-                }
-                
-                this.saveState();
-                this.saveCurrentState();
+                this.lockPrivateZone();
             }
+            
+            this.saveState();
         });
     },
 
@@ -513,31 +418,6 @@ var essayManager = {
             this.initWaterfall();
             this.isLoading = false;
         }, 100);
-        
-        // 更新URL状态
-        this.updatePublicURLState();
-    },
-
-    // 更新公开区URL状态
-    updatePublicURLState: function() {
-        const state = {
-            publicPage: this.currentPage,
-            privateUnlocked: this.privateUnlocked,
-            privatePage: this.privateCurrentPage
-        };
-        
-        const url = new URL(window.location);
-        url.searchParams.set('publicPage', this.currentPage);
-        
-        if (this.privateUnlocked) {
-            url.searchParams.set('private', '1');
-            url.searchParams.set('privatePage', this.privateCurrentPage);
-        } else {
-            url.searchParams.delete('private');
-            url.searchParams.delete('privatePage');
-        }
-        
-        window.history.replaceState(state, '', url);
     },
 
     renderEssays: function(essays) {
@@ -724,15 +604,42 @@ var essayManager = {
 
     renderPagination: function() {
         const totalPages = Math.ceil(this.allEssays.length / this.itemsPerPage);
-        const paginationContainer = document.querySelector('.pagination') || this.createPaginationContainer();
+        
+        // 使用特定的essay分页容器
+        let paginationContainer = document.querySelector('#essay-pagination .pagination');
+        
+        // 如果分页容器不存在，创建它
+        if (!paginationContainer) {
+            // 先检查是否有 #essay-pagination 容器
+            let paginationNav = document.getElementById('essay-pagination');
+            if (!paginationNav) {
+                paginationNav = document.createElement('nav');
+                paginationNav.id = 'essay-pagination';
+                const bberContainer = document.getElementById('bber');
+                if (bberContainer) {
+                    bberContainer.appendChild(paginationNav);
+                }
+            }
+            
+            // 创建 .pagination div
+            paginationContainer = document.createElement('div');
+            paginationContainer.className = 'pagination';
+            paginationNav.appendChild(paginationContainer);
+        }
         
         paginationContainer.innerHTML = '';
+
+        // 如果只有一页或没有内容，不显示分页
+        if (totalPages <= 1) {
+            return;
+        }
 
         // 添加上一页按钮
         const prevButton = document.createElement('a');
         prevButton.className = 'pagination-item pagination-prev';
         prevButton.innerHTML = '&laquo; 上一页';
         prevButton.onclick = () => this.prevPage();
+        prevButton.href = 'javascript:void(0);';
         paginationContainer.appendChild(prevButton);
 
         // 添加页码
@@ -741,6 +648,7 @@ var essayManager = {
             pageButton.className = `pagination-item ${i === this.currentPage ? 'active' : ''}`;
             pageButton.textContent = i;
             pageButton.onclick = () => this.goToPage(i);
+            pageButton.href = 'javascript:void(0);';
             paginationContainer.appendChild(pageButton);
         }
 
@@ -749,17 +657,13 @@ var essayManager = {
         nextButton.className = 'pagination-item pagination-next';
         nextButton.innerHTML = '下一页 &raquo;';
         nextButton.onclick = () => this.nextPage();
+        nextButton.href = 'javascript:void(0);';
         paginationContainer.appendChild(nextButton);
     },
 
     createPaginationContainer: function() {
-        const container = document.createElement('div');
-        container.className = 'pagination';
-        const bberContainer = document.getElementById('bber');
-        if (bberContainer) {
-            bberContainer.appendChild(container);
-        }
-        return container;
+        // 这个方法现在在 renderPagination 中直接处理了
+        return document.querySelector('#essay-pagination .pagination');
     },
 
     goToPage: function(page) {
@@ -767,16 +671,10 @@ var essayManager = {
             return;
         }
 
-        // 保存当前状态为之前状态
-        this.saveAsPreviousState();
-        
         this.currentPage = page;
         this.saveState();
         this.renderPagination();
         this.renderCurrentPage();
-        
-        // 保存新状态
-        this.saveCurrentState();
         
         // 滚动到顶部
         setTimeout(() => {
@@ -855,28 +753,6 @@ var essayManager = {
                 this.privateCurrentPage = savedPrivatePage;
             }
             this.unlockPrivateZone();
-        }
-        
-        // 检查URL参数，优先使用URL中的状态
-        const urlParams = new URLSearchParams(window.location.search);
-        const privateParam = urlParams.get('private');
-        const privatePage = parseInt(urlParams.get('privatePage')) || 1;
-        const publicPage = parseInt(urlParams.get('publicPage')) || 1;
-        
-        // 添加公开区URL参数处理
-        if (urlParams.has('publicPage')) {
-            this.currentPage = publicPage;
-        }
-        
-        if (privateParam === '1') {
-            this.privateUnlocked = true;
-            this.privateCurrentPage = privatePage;
-            // 这里也要更新公开区页码
-            if (urlParams.has('publicPage')) {
-                this.currentPage = publicPage;
-            }
-            this.unlockPrivateZone();
-            this.renderPagination();
         }
         
         // 确保渲染正确的页码
