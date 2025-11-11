@@ -866,41 +866,35 @@
     }
 }
 
-
-
-/* ========== 移动端按钮优化 - 调整按钮尺寸 ========== */
+/* ========== 移动端按钮优化 - 完全修复显示问题 ========== */
 @media screen and (max-width: 480px) {
     .author-content.author-content-item.essayPage.single {
-        height: 19rem; /* 稍微减小高度到19rem */
-        min-height: 19rem;
+        height: 22rem; /* 增加移动端横幅高度，为按钮提供更多空间 */
+        min-height: 22rem; /* 确保最小高度 */
     }
     
     .author-content-item .content-bottom {
-        gap: 1.2rem; /* 稍微减小间距 */
+        gap: 1.2rem; /* 增加底部内容间距 */
         margin-top: auto;
-        padding-bottom: 1.2rem; /* 稍微减小底部内边距 */
+        padding-bottom: 1rem; /* 增加底部内边距 */
     }
     
     .banner-button-group {
         flex-direction: column;
         width: 100%;
-        gap: 0.8rem; /* 减小按钮间距 */
-        margin-bottom: 0;
+        gap: 1rem; /* 增加按钮间距 */
+        margin-bottom: 0; /* 移除底部外边距 */
     }
     
     .card-content .banner-button-group .banner-button {
         min-width: 100%;
         width: 100%;
         justify-content: center;
-        padding: 10px 1rem; /* 减小垂直内边距，从16px减小到10px */
-        font-size: 1rem; /* 保持字体大小不变 */
-        min-height: 46px; /* 减小最小高度，从56px减小到46px */
-        height: auto;
-        line-height: 1.4;
-        /* 确保按钮内容完全居中 */
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        padding: 14px 1rem; /* 增加垂直内边距 */
+        font-size: 0.95rem; /* 稍微增大字体 */
+        min-height: 56px; /* 设置最小高度确保按钮完整显示 */ 
+        height: auto; /* 高度自适应 */
+        line-height: 1.4; /* 设置行高确保文字垂直居中 */
     }
     
     /* 确保按钮文字完整显示 */
@@ -908,71 +902,67 @@
         white-space: nowrap;
         overflow: visible;
         text-overflow: clip;
-        min-width: 60px;
+        min-width: 60px; /* 为文字设置最小宽度 */
         text-align: center;
         display: flex;
         align-items: center;
         justify-content: center;
-        flex: 1;
     }
     
     /* 按钮图标样式 */
     .card-content .banner-button-group .banner-button i {
-        font-size: 1.1rem; /* 保持图标大小不变 */
-        min-width: 22px; /* 稍微减小图标最小宽度 */
-        margin-right: 6px; /* 稍微减小图标和文字间距 */
+        font-size: 1.1rem;
+        min-width: 22px;
     }
     
     /* 调整卡片内容的内边距 */
     .card-content {
-        padding: 1.6rem 1.5rem 1.2rem; /* 稍微调整内边距 */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 100%;
+        padding: 1.5rem 1.2rem; /* 移动端调整内边距 */
     }
     
-    /* 调整标题区域 */
+    /* 调整标题区域，为按钮腾出更多空间 */
     .author-content-item-tips, 
     .author-content-item-title {
-        margin-bottom: 0.8rem;
-    }
-    
-    .author-content-item-title {
-        font-size: 1.6rem;
-    }
-    
-    .content-bottom .tips {
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.5rem; /* 减小标题底部边距 */
     }
 }
 
 /* 针对更小的屏幕进一步优化 */
 @media screen and (max-width: 360px) {
     .author-content.author-content-item.essayPage.single {
-        height: 18rem; /* 小屏幕稍微调整高度 */
-        min-height: 18rem;
+        height: 20rem; /* 小屏幕稍微减小高度 */
+        min-height: 20rem;
     }
     
     .card-content .banner-button-group .banner-button {
-        font-size: 0.95rem; /* 保持字体大小 */
-        padding: 9px 0.9rem; /* 稍微减小内边距 */
-        min-height: 44px; /* 稍微减小最小高度 */
+        font-size: 0.9rem;
+        padding: 12px 0.8rem;
+        min-height: 52px; /* 小屏幕稍微减小高度 */
     }
     
     .banner-button-text {
-        letter-spacing: -0.2px;
-        min-width: 58px;
+        letter-spacing: -0.3px;
+        min-width: 55px;
     }
     
     .card-content {
-        padding: 1.5rem 1.2rem 1rem;
+        padding: 1.2rem 1rem; /* 小屏幕进一步调整内边距 */
     }
+
+
+    /* 如果需要，还可以为超小屏幕做额外优化 */
+    @media screen and (max-width: 320px) {
+        .author-content.author-content-item.essayPage.single {
+            height: 20rem;
+            min-height: 20rem;
+        }
+        
+        .card-content {
+            padding: 1.6rem 1rem 1rem;
+        }
+    }
+
     
-    .author-content-item-title {
-        font-size: 1.5rem;
-    }
 }
 
 /* ========== 个人区分页样式 ========== */
