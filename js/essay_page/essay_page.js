@@ -1,4 +1,3 @@
-
 var essayManager = {
     currentPage: 1,
     itemsPerPage: 6,
@@ -11,6 +10,9 @@ var essayManager = {
     privateItemsPerPage: 6, // 可以和公开区不同
     allPrivateEssays: [], // 存储所有个人短文数据
 
+    // 添加历史记录管理
+    historyStack: [],
+    maxHistoryLength: 3, // 最多存储3个状态（当前+2个历史）
 
     init: function() {
         this.setupEventListeners();
@@ -18,8 +20,63 @@ var essayManager = {
         this.loadEssayData(); // 然后加载数据，这样渲染就会使用恢复后的状态
         this.initPrivateZoneModal();
         this.setupHistoryListener(); // 添加浏览器历史记录监听
+        this.setupInitialHistory(); // 初始化历史记录
     },
-    
+
+    // 初始化历史记录
+    setupInitialHistory: function() {
+        // 只在初始加载时设置第一个历史记录
+        if (!window.history.state || !window.history.state.timestamp) {
+            const state = {
+                publicPage: this.currentPage,
+                privateUnlocked: this.privateUnlocked,
+                privatePage: this.privateCurrentPage,
+                timestamp: Date.now(),
+                isInitial: true // 标记为初始状态
+            };
+            
+            const url = new URL(window.location);
+            // 确保URL路径正确，避免404
+            this.cleanURLParams(url);
+            url.searchParams.set('publicPage', this.currentPage);
+            
+            if (this.privateUnlocked) {
+                url.searchParams.set('private', '1');
+                url.searchParams.set('privatePage', this.privateCurrentPage);
+            }
+            
+            window.history.replaceState(state, '', url);
+            this.addToHistoryStack(state);
+        }
+    },
+
+    // 清理URL参数，确保路径正确
+    cleanURLParams: function(url) {
+        // 只保留必要的参数，移除可能导致404的其他参数
+        const allowedParams = ['publicPage', 'private', 'privatePage'];
+        for (const key of url.searchParams.keys()) {
+            if (!allowedParams.includes(key)) {
+                url.searchParams.delete(key);
+            }
+        }
+    },
+
+    // 添加到历史记录栈
+    addToHistoryStack: function(state) {
+        this.historyStack.push(state);
+        // 限制历史记录数量
+        if (this.historyStack.length > this.maxHistoryLength) {
+            this.historyStack.shift(); // 移除最旧的历史记录
+        }
+    },
+
+    // 从历史记录栈获取上一个状态
+    getPreviousState: function() {
+        if (this.historyStack.length > 1) {
+            return this.historyStack[this.historyStack.length - 2];
+        }
+        return null;
+    },
 
     loadEssayData: function() {
         // 从全局变量或直接数据加载
@@ -166,7 +223,7 @@ var essayManager = {
         this.renderPrivatePagination();
         this.renderPrivateCurrentPage();
         
-        // 更新URL状态但不刷新页面
+        // 使用 pushState 创建新的历史记录
         this.updatePrivateURLState();
     },
 
@@ -321,7 +378,7 @@ var essayManager = {
             this.loadPrivateEssayData();
         }
         
-        // 更新URL状态
+        // 创建新的历史记录
         this.updatePrivateURLState();
         
         // 滚动到个人区
@@ -348,67 +405,87 @@ var essayManager = {
             privateZone.style.display = 'none';
         }
         
-        // 清除URL中的个人区状态
+        // 创建新的历史记录
         this.clearPrivateURLState();
     },
 
-    // 更新URL状态以支持浏览器返回按钮
+    // 更新URL状态以支持浏览器返回按钮 - 使用 pushState
     updatePrivateURLState: function() {
         if (!this.privateUnlocked) return;
         
         const state = {
             privateUnlocked: true,
             privatePage: this.privateCurrentPage,
-            publicPage: this.currentPage
+            publicPage: this.currentPage,
+            timestamp: Date.now()
         };
         
-        // 使用replaceState而不是pushState，避免产生过多历史记录
+        // 使用 pushState 创建新的历史记录
         const url = new URL(window.location);
+        this.cleanURLParams(url);
         url.searchParams.set('private', '1');
         url.searchParams.set('privatePage', this.privateCurrentPage);
         url.searchParams.set('publicPage', this.currentPage);
         
-        window.history.replaceState(state, '', url);
+        window.history.pushState(state, '', url);
+        this.addToHistoryStack(state);
     },
 
     clearPrivateURLState: function() {
+        const state = {
+            publicPage: this.currentPage,
+            privateUnlocked: false,
+            timestamp: Date.now()
+        };
+        
         const url = new URL(window.location);
+        this.cleanURLParams(url);
         url.searchParams.delete('private');
         url.searchParams.delete('privatePage');
-        url.searchParams.delete('publicPage');
+        url.searchParams.set('publicPage', this.currentPage);
         
-        window.history.replaceState({}, '', url);
+        window.history.pushState(state, '', url);
+        this.addToHistoryStack(state);
     },
 
     // 设置历史记录监听
     setupHistoryListener: function() {
         window.addEventListener('popstate', (event) => {
-            if (event.state && event.state.privateUnlocked) {
-                // 恢复个人区状态
-                this.privateUnlocked = true;
-                this.privateCurrentPage = event.state.privatePage || 1;
-                this.currentPage = event.state.publicPage || 1;
-                
-                // 更新UI
-                this.unlockPrivateZone();
-                this.renderPagination();
-                this.renderCurrentPage();
-            } else {
-                // 检查URL参数
+            // 优先使用event.state，如果没有则从URL参数恢复
+            let state = event.state;
+            
+            if (!state) {
+                // 从URL参数恢复状态
                 const urlParams = new URLSearchParams(window.location.search);
+                const publicPage = parseInt(urlParams.get('publicPage')) || 1;
                 const privateParam = urlParams.get('private');
                 const privatePage = parseInt(urlParams.get('privatePage')) || 1;
-                const publicPage = parseInt(urlParams.get('publicPage')) || 1;
                 
-                if (privateParam === '1') {
-                    this.privateUnlocked = true;
-                    this.privateCurrentPage = privatePage;
-                    this.currentPage = publicPage;
-                    this.unlockPrivateZone();
-                    this.renderPagination();
-                    this.renderCurrentPage();
-                }
+                state = {
+                    publicPage: publicPage,
+                    privateUnlocked: privateParam === '1',
+                    privatePage: privatePage,
+                    timestamp: Date.now()
+                };
             }
+            
+            // 恢复状态
+            if (state.publicPage !== undefined) {
+                this.currentPage = state.publicPage;
+                this.renderPagination();
+                this.renderCurrentPage();
+            }
+            
+            if (state.privateUnlocked) {
+                this.privateUnlocked = true;
+                this.privateCurrentPage = state.privatePage || 1;
+                this.unlockPrivateZone();
+            } else {
+                this.privateUnlocked = false;
+                this.lockPrivateZone();
+            }
+            
+            this.saveState();
         });
     },
 
@@ -441,19 +518,21 @@ var essayManager = {
             this.isLoading = false;
         }, 100);
         
-        // 更新URL状态
+        // 更新URL状态 - 使用 pushState
         this.updatePublicURLState();
     },
 
-    // 更新公开区URL状态
+    // 更新公开区URL状态 - 使用 pushState
     updatePublicURLState: function() {
         const state = {
             publicPage: this.currentPage,
             privateUnlocked: this.privateUnlocked,
-            privatePage: this.privateCurrentPage
+            privatePage: this.privateCurrentPage,
+            timestamp: Date.now()
         };
         
         const url = new URL(window.location);
+        this.cleanURLParams(url);
         url.searchParams.set('publicPage', this.currentPage);
         
         if (this.privateUnlocked) {
@@ -464,7 +543,9 @@ var essayManager = {
             url.searchParams.delete('privatePage');
         }
         
-        window.history.replaceState(state, '', url);
+        // 使用 pushState 创建新的历史记录
+        window.history.pushState(state, '', url);
+        this.addToHistoryStack(state);
     },
 
     renderEssays: function(essays) {
@@ -698,6 +779,9 @@ var essayManager = {
         this.saveState();
         this.renderPagination();
         this.renderCurrentPage();
+        
+        // 使用 pushState 创建新的历史记录
+        this.updatePublicURLState();
         
         // 滚动到顶部
         setTimeout(() => {
