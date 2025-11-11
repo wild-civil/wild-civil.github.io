@@ -5,7 +5,7 @@ var essayManager = {
     isLoading: false,
 
     privateUnlocked: false,
-    privatePassword: "123456", // 默认密码，修改进入个人区域
+    privatePassword: "20201204", // 默认密码，修改进入个人区域
     privateCurrentPage: 1,
     privateItemsPerPage: 6, // 可以和公开区不同
     allPrivateEssays: [], // 存储所有个人短文数据
