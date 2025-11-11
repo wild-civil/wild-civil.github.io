@@ -10,11 +10,6 @@ var essayManager = {
     privateCurrentPage: 1,
     privateItemsPerPage: 6, // 可以和公开区不同
     allPrivateEssays: [], // 存储所有个人短文数据
-    
-    // 新增：浏览历史栈，最多存储5个状态
-    historyStack: [],
-    maxHistorySize: 5, // 最大历史记录数量
-    isNavigatingBack: false, // 标记是否正在回退导航
 
     init: function() {
         this.loadEssayData();
@@ -24,9 +19,6 @@ var essayManager = {
         
         // 添加浏览器历史记录监听
         this.setupHistoryListener();
-        
-        // 初始化时将当前状态加入历史栈
-        this.pushToHistory();
     },
     
     loadEssayData: function() {
@@ -174,11 +166,6 @@ var essayManager = {
         this.renderPrivatePagination();
         this.renderPrivateCurrentPage();
         
-        // 如果不是回退导航，则将状态加入历史栈
-        if (!this.isNavigatingBack) {
-            this.pushToHistory();
-        }
-        
         // 更新URL状态但不刷新页面
         this.updatePrivateURLState();
     },
@@ -205,69 +192,6 @@ var essayManager = {
         
         const totalPages = Math.ceil(this.allPrivateEssays.length / this.privateItemsPerPage);
         tips.textContent = `- 共 ${this.allPrivateEssays.length} 条个人短文，第 ${this.privateCurrentPage}/${totalPages} 页 -`;
-    },
-
-    // 新增：历史记录管理方法
-    pushToHistory: function() {
-        const state = {
-            publicPage: this.currentPage,
-            privatePage: this.privateCurrentPage,
-            privateUnlocked: this.privateUnlocked,
-            timestamp: Date.now()
-        };
-        
-        // 如果栈已满，移除最旧的状态
-        if (this.historyStack.length >= this.maxHistorySize) {
-            this.historyStack.shift();
-        }
-        
-        // 添加新状态到栈顶
-        this.historyStack.push(state);
-        
-        console.log('History stack updated:', this.historyStack.length, 'items');
-    },
-
-    // 从历史记录中恢复状态
-    restoreFromHistory: function() {
-        if (this.historyStack.length === 0) return;
-        
-        // 移除当前状态（栈顶）
-        this.historyStack.pop();
-        
-        // 如果栈为空，则无法回退
-        if (this.historyStack.length === 0) {
-            console.log('No more history to restore');
-            return false;
-        }
-        
-        // 获取上一个状态
-        const prevState = this.historyStack[this.historyStack.length - 1];
-        
-        // 标记正在回退导航，避免重复记录历史
-        this.isNavigatingBack = true;
-        
-        // 恢复状态
-        this.currentPage = prevState.publicPage || 1;
-        this.privateCurrentPage = prevState.privatePage || 1;
-        this.privateUnlocked = prevState.privateUnlocked || false;
-        
-        // 更新UI
-        this.renderPagination();
-        this.renderCurrentPage();
-        
-        if (this.privateUnlocked) {
-            this.unlockPrivateZone(false); // 不记录历史
-        } else {
-            this.lockPrivateZone(false); // 不记录历史
-        }
-        
-        // 恢复完成后重置标记
-        setTimeout(() => {
-            this.isNavigatingBack = false;
-        }, 100);
-        
-        console.log('Restored from history:', prevState);
-        return true;
     },
 
     togglePrivateZone: function() {
@@ -379,7 +303,7 @@ var essayManager = {
         }, 3000);
     },
 
-    unlockPrivateZone: function(recordHistory = true) {
+    unlockPrivateZone: function() {
         this.privateUnlocked = true;
         this.saveState();
         
@@ -400,18 +324,13 @@ var essayManager = {
         // 更新URL状态
         this.updatePrivateURLState();
         
-        // 如果不是回退导航，记录历史
-        if (recordHistory && !this.isNavigatingBack) {
-            this.pushToHistory();
-        }
-        
         // 滚动到个人区
         setTimeout(() => {
             privateZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 500);
     },
 
-    lockPrivateZone: function(recordHistory = true) {
+    lockPrivateZone: function() {
         this.privateUnlocked = false;
         this.privateCurrentPage = 1; // 重置个人区页码
         this.saveState();
@@ -431,11 +350,6 @@ var essayManager = {
         
         // 清除URL中的个人区状态
         this.clearPrivateURLState();
-        
-        // 如果不是回退导航，记录历史
-        if (recordHistory && !this.isNavigatingBack) {
-            this.pushToHistory();
-        }
     },
 
     // 更新URL状态以支持浏览器返回按钮
@@ -475,18 +389,10 @@ var essayManager = {
                 this.privateCurrentPage = event.state.privatePage || 1;
                 this.currentPage = event.state.publicPage || 1;
                 
-                // 标记为回退导航
-                this.isNavigatingBack = true;
-                
                 // 更新UI
-                this.unlockPrivateZone(false);
+                this.unlockPrivateZone();
                 this.renderPagination();
                 this.renderCurrentPage();
-                
-                // 重置标记
-                setTimeout(() => {
-                    this.isNavigatingBack = false;
-                }, 100);
             } else {
                 // 检查URL参数
                 const urlParams = new URLSearchParams(window.location.search);
@@ -498,28 +404,10 @@ var essayManager = {
                     this.privateUnlocked = true;
                     this.privateCurrentPage = privatePage;
                     this.currentPage = publicPage;
-                    
-                    // 标记为回退导航
-                    this.isNavigatingBack = true;
-                    
-                    this.unlockPrivateZone(false);
+                    this.unlockPrivateZone();
                     this.renderPagination();
                     this.renderCurrentPage();
-                    
-                    // 重置标记
-                    setTimeout(() => {
-                        this.isNavigatingBack = false;
-                    }, 100);
                 }
-            }
-        });
-        
-        // 添加键盘事件监听，支持浏览器返回按钮
-        window.addEventListener('keydown', (e) => {
-            // 监听Alt+Left箭头（浏览器返回快捷键）
-            if (e.altKey && e.key === 'ArrowLeft') {
-                e.preventDefault();
-                this.restoreFromHistory();
             }
         });
     },
@@ -811,11 +699,6 @@ var essayManager = {
         this.renderPagination();
         this.renderCurrentPage();
         
-        // 如果不是回退导航，则将状态加入历史栈
-        if (!this.isNavigatingBack) {
-            this.pushToHistory();
-        }
-        
         // 滚动到顶部
         setTimeout(() => {
             const bberElement = document.getElementById('bber');
@@ -875,9 +758,6 @@ var essayManager = {
         sessionStorage.setItem('essayCurrentPage', this.currentPage.toString());
         sessionStorage.setItem('essayPrivateUnlocked', this.privateUnlocked.toString());
         sessionStorage.setItem('essayPrivateCurrentPage', this.privateCurrentPage.toString());
-        // 保存历史栈（最多保存最近5个）
-        const historyToSave = this.historyStack.slice(-this.maxHistorySize);
-        sessionStorage.setItem('essayHistoryStack', JSON.stringify(historyToSave));
     },
 
     restoreState: function() {
@@ -894,18 +774,7 @@ var essayManager = {
             if (savedPrivatePage && !isNaN(savedPrivatePage)) {
                 this.privateCurrentPage = savedPrivatePage;
             }
-            this.unlockPrivateZone(false);
-        }
-        
-        // 恢复历史栈
-        const savedHistory = sessionStorage.getItem('essayHistoryStack');
-        if (savedHistory) {
-            try {
-                this.historyStack = JSON.parse(savedHistory);
-            } catch (e) {
-                console.error('Failed to restore history stack:', e);
-                this.historyStack = [];
-            }
+            this.unlockPrivateZone();
         }
         
         // 检查URL参数，优先使用URL中的状态
@@ -918,7 +787,7 @@ var essayManager = {
             this.privateUnlocked = true;
             this.privateCurrentPage = privatePage;
             this.currentPage = publicPage;
-            this.unlockPrivateZone(false);
+            this.unlockPrivateZone();
             this.renderPagination();
         }
     },

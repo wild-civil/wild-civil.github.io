@@ -426,6 +426,7 @@
 /* ========== 响应式样式 ========== */
 @media screen and (max-width: 1300px) {
     #bber .timeline ul li.bber-item {
+        /* width: 49%; */
         width: 48%; /* 从49%调整到48% */
         margin: 0 1% 1.5rem 1%; /* 保持一致的间距 */
     }
@@ -433,6 +434,7 @@
 
 @media screen and (max-width: 768px) {
     #bber .timeline ul li.bber-item {
+        /* width: 100%; */
         width: 98%; /* 从100%调整到98% */
         margin: 0 1% 1.5rem 1%; /* 保持一致的间距 */
         padding: 1.2rem; /* 移动端适当减小内边距 */
@@ -583,7 +585,6 @@
     padding-top: 2rem;
     border-top: 2px dashed var(--anzhiyu-theme-op);
 }
-
 
  /* 个人区按钮特殊样式 */
 #privateZoneBtn {
@@ -865,22 +866,35 @@
     }
 }
 
-/* ========== 移动端按钮优化 - 修复按钮显示不全问题 ========== */
+/* ========== 移动端按钮优化 - 完全修复显示问题 ========== */
 @media screen and (max-width: 480px) {
+    .author-content.author-content-item.essayPage.single {
+        height: 18rem; /* 增加移动端横幅高度，为按钮提供更多空间 */
+        min-height: 18rem; /* 确保最小高度 */
+    }
+    
+    .author-content-item .content-bottom {
+        gap: 1.5rem; /* 增加底部内容间距 */
+        margin-top: auto;
+        padding-bottom: 1rem; /* 增加底部内边距 */
+    }
+    
     .banner-button-group {
         flex-direction: column;
         width: 100%;
-        gap: 0.75rem;
+        gap: 1rem; /* 增加按钮间距 */
+        margin-bottom: 0; /* 移除底部外边距 */
     }
     
     .card-content .banner-button-group .banner-button {
         min-width: 100%;
         width: 100%;
         justify-content: center;
-        padding: 12px 1rem; /* 增加垂直内边距，确保按钮高度足够 */
-        font-size: 0.9rem;
-        min-height: 48px; /* 设置最小高度确保按钮完整显示 */
+        padding: 14px 1rem; /* 增加垂直内边距 */
+        font-size: 0.95rem; /* 稍微增大字体 */
+        min-height: 52px; /* 设置最小高度确保按钮完整显示 */
         height: auto; /* 高度自适应 */
+        line-height: 1.4; /* 设置行高确保文字垂直居中 */
     }
     
     /* 确保按钮文字完整显示 */
@@ -890,32 +904,49 @@
         text-overflow: clip;
         min-width: 60px; /* 为文字设置最小宽度 */
         text-align: center;
-        line-height: 1.2; /* 确保文字垂直居中 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     /* 按钮图标样式 */
     .card-content .banner-button-group .banner-button i {
-        font-size: 1rem;
-        min-width: 20px;
+        font-size: 1.1rem;
+        min-width: 22px;
     }
     
-    /* 确保按钮容器有足够空间 */
-    .author-content-item .content-bottom {
-        gap: 1.5rem; /* 增加内容底部间距 */
+    /* 调整卡片内容的内边距 */
+    .card-content {
+        padding: 1.5rem 1.2rem; /* 移动端调整内边距 */
+    }
+    
+    /* 调整标题区域，为按钮腾出更多空间 */
+    .author-content-item-tips, 
+    .author-content-item-title {
+        margin-bottom: 0.5rem; /* 减小标题底部边距 */
     }
 }
 
 /* 针对更小的屏幕进一步优化 */
 @media screen and (max-width: 360px) {
+    .author-content.author-content-item.essayPage.single {
+        height: 17rem; /* 小屏幕稍微减小高度 */
+        min-height: 17rem;
+    }
+    
     .card-content .banner-button-group .banner-button {
-        font-size: 0.85rem;
-        padding: 10px 0.8rem;
-        min-height: 44px; /* 小屏幕稍微减小高度 */
+        font-size: 0.9rem;
+        padding: 12px 0.8rem;
+        min-height: 48px; /* 小屏幕稍微减小高度 */
     }
     
     .banner-button-text {
-        letter-spacing: -0.5px;
+        letter-spacing: -0.3px;
         min-width: 55px;
+    }
+    
+    .card-content {
+        padding: 1.2rem 1rem; /* 小屏幕进一步调整内边距 */
     }
 }
 
