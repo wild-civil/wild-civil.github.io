@@ -1,3 +1,4 @@
+
 var essayManager = {
     currentPage: 1,
     itemsPerPage: 6,
@@ -8,12 +9,16 @@ var essayManager = {
     privatePassword: "123456", // 默认密码，修改进入个人区域
     privateCurrentPage: 1,
     privateItemsPerPage: 6, // 可以和公开区不同
+    allPrivateEssays: [], // 存储所有个人短文数据
 
     init: function() {
         this.loadEssayData();
         this.setupEventListeners();
         this.restoreState();
         this.initPrivateZoneModal();
+        
+        // 添加浏览器历史记录监听
+        this.setupHistoryListener();
     },
     
     loadEssayData: function() {
@@ -27,16 +32,30 @@ var essayManager = {
         }
     },
 
-    //
-    // 在 loadEssayData 方法后添加个人区相关方法
+    // 加载个人短文数据
     loadPrivateEssayData: function() {
         if (window.privateEssayData && Array.isArray(window.privateEssayData)) {
-            const allPrivateEssays = this.flattenEssayData(window.privateEssayData);
-            this.renderPrivateEssays(allPrivateEssays);
-            this.renderPrivatePagination(allPrivateEssays.length); // 个人短文也支持分页
+            this.allPrivateEssays = this.flattenEssayData(window.privateEssayData);
+            this.renderPrivateCurrentPage();
         } else {
             this.showEmptyPrivateZone();
         }
+    },
+
+    // 渲染当前页的个人短文
+    renderPrivateCurrentPage: function() {
+        const startIndex = (this.privateCurrentPage - 1) * this.privateItemsPerPage;
+        const endIndex = Math.min(startIndex + this.privateItemsPerPage, this.allPrivateEssays.length);
+        const currentEssays = this.allPrivateEssays.slice(startIndex, endIndex);
+        
+        this.renderPrivateEssays(currentEssays);
+        this.renderPrivatePagination();
+        this.updatePrivateTips();
+        
+        // 重新初始化瀑布流
+        setTimeout(() => {
+            this.initPrivateWaterfall();
+        }, 100);
     },
 
     renderPrivateEssays: function(essays) {
@@ -55,11 +74,6 @@ var essayManager = {
             const essayElement = this.createEssayElement(item, index);
             waterfall.appendChild(essayElement);
         });
-
-        // 初始化个人区的瀑布流
-        setTimeout(() => {
-            this.initPrivateWaterfall();
-        }, 100);
     },
 
     showEmptyPrivateZone: function() {
@@ -93,6 +107,91 @@ var essayManager = {
                 }
             }
         }, 50);
+    },
+
+    // 渲染个人区分页
+    renderPrivatePagination: function() {
+        const totalPages = Math.ceil(this.allPrivateEssays.length / this.privateItemsPerPage);
+        let paginationContainer = document.querySelector('.private-pagination');
+        
+        // 如果分页容器不存在，创建它
+        if (!paginationContainer) {
+            paginationContainer = document.createElement('div');
+            paginationContainer.className = 'private-pagination';
+            const privateZone = document.querySelector('.private-zone');
+            if (privateZone) {
+                privateZone.appendChild(paginationContainer);
+            }
+        }
+        
+        paginationContainer.innerHTML = '';
+
+        // 如果只有一页或没有内容，不显示分页
+        if (totalPages <= 1) {
+            return;
+        }
+
+        // 添加上一页按钮
+        const prevButton = document.createElement('a');
+        prevButton.className = 'pagination-item pagination-prev';
+        prevButton.innerHTML = '&laquo; 上一页';
+        prevButton.onclick = () => this.prevPrivatePage();
+        paginationContainer.appendChild(prevButton);
+
+        // 添加页码
+        for (let i = 1; i <= totalPages; i++) {
+            const pageButton = document.createElement('a');
+            pageButton.className = `pagination-item ${i === this.privateCurrentPage ? 'active' : ''}`;
+            pageButton.textContent = i;
+            pageButton.onclick = () => this.goToPrivatePage(i);
+            paginationContainer.appendChild(pageButton);
+        }
+
+        // 添加下一页按钮
+        const nextButton = document.createElement('a');
+        nextButton.className = 'pagination-item pagination-next';
+        nextButton.innerHTML = '下一页 &raquo;';
+        nextButton.onclick = () => this.nextPrivatePage();
+        paginationContainer.appendChild(nextButton);
+    },
+
+    // 个人区分页方法
+    goToPrivatePage: function(page) {
+        if (page < 1 || page > Math.ceil(this.allPrivateEssays.length / this.privateItemsPerPage)) {
+            return;
+        }
+
+        this.privateCurrentPage = page;
+        this.saveState();
+        this.renderPrivatePagination();
+        this.renderPrivateCurrentPage();
+        
+        // 更新URL状态但不刷新页面
+        this.updatePrivateURLState();
+    },
+
+    prevPrivatePage: function() {
+        this.goToPrivatePage(this.privateCurrentPage - 1);
+    },
+
+    nextPrivatePage: function() {
+        this.goToPrivatePage(this.privateCurrentPage + 1);
+    },
+
+    // 更新个人区提示信息
+    updatePrivateTips: function() {
+        let tips = document.getElementById('private-bber-tips');
+        if (!tips) {
+            tips = document.createElement('div');
+            tips.id = 'private-bber-tips';
+            const privateZone = document.querySelector('.private-zone');
+            if (privateZone) {
+                privateZone.appendChild(tips);
+            }
+        }
+        
+        const totalPages = Math.ceil(this.allPrivateEssays.length / this.privateItemsPerPage);
+        tips.textContent = `- 共 ${this.allPrivateEssays.length} 条个人短文，第 ${this.privateCurrentPage}/${totalPages} 页 -`;
     },
 
     togglePrivateZone: function() {
@@ -222,6 +321,9 @@ var essayManager = {
             this.loadPrivateEssayData();
         }
         
+        // 更新URL状态
+        this.updatePrivateURLState();
+        
         // 滚动到个人区
         setTimeout(() => {
             privateZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -230,6 +332,7 @@ var essayManager = {
 
     lockPrivateZone: function() {
         this.privateUnlocked = false;
+        this.privateCurrentPage = 1; // 重置个人区页码
         this.saveState();
         
         // 更新按钮状态
@@ -244,8 +347,70 @@ var essayManager = {
         if (privateZone) {
             privateZone.style.display = 'none';
         }
+        
+        // 清除URL中的个人区状态
+        this.clearPrivateURLState();
     },
-    //
+
+    // 更新URL状态以支持浏览器返回按钮
+    updatePrivateURLState: function() {
+        if (!this.privateUnlocked) return;
+        
+        const state = {
+            privateUnlocked: true,
+            privatePage: this.privateCurrentPage,
+            publicPage: this.currentPage
+        };
+        
+        // 使用replaceState而不是pushState，避免产生过多历史记录
+        const url = new URL(window.location);
+        url.searchParams.set('private', '1');
+        url.searchParams.set('privatePage', this.privateCurrentPage);
+        url.searchParams.set('publicPage', this.currentPage);
+        
+        window.history.replaceState(state, '', url);
+    },
+
+    clearPrivateURLState: function() {
+        const url = new URL(window.location);
+        url.searchParams.delete('private');
+        url.searchParams.delete('privatePage');
+        url.searchParams.delete('publicPage');
+        
+        window.history.replaceState({}, '', url);
+    },
+
+    // 设置历史记录监听
+    setupHistoryListener: function() {
+        window.addEventListener('popstate', (event) => {
+            if (event.state && event.state.privateUnlocked) {
+                // 恢复个人区状态
+                this.privateUnlocked = true;
+                this.privateCurrentPage = event.state.privatePage || 1;
+                this.currentPage = event.state.publicPage || 1;
+                
+                // 更新UI
+                this.unlockPrivateZone();
+                this.renderPagination();
+                this.renderCurrentPage();
+            } else {
+                // 检查URL参数
+                const urlParams = new URLSearchParams(window.location.search);
+                const privateParam = urlParams.get('private');
+                const privatePage = parseInt(urlParams.get('privatePage')) || 1;
+                const publicPage = parseInt(urlParams.get('publicPage')) || 1;
+                
+                if (privateParam === '1') {
+                    this.privateUnlocked = true;
+                    this.privateCurrentPage = privatePage;
+                    this.currentPage = publicPage;
+                    this.unlockPrivateZone();
+                    this.renderPagination();
+                    this.renderCurrentPage();
+                }
+            }
+        });
+    },
 
     flattenEssayData: function(essayData) {
         const flattened = [];
@@ -275,9 +440,33 @@ var essayManager = {
             this.initWaterfall();
             this.isLoading = false;
         }, 100);
+        
+        // 更新URL状态
+        this.updatePublicURLState();
     },
 
-    // 修改现有的 renderEssays 方法为渲染公开区域
+    // 更新公开区URL状态
+    updatePublicURLState: function() {
+        const state = {
+            publicPage: this.currentPage,
+            privateUnlocked: this.privateUnlocked,
+            privatePage: this.privateCurrentPage
+        };
+        
+        const url = new URL(window.location);
+        url.searchParams.set('publicPage', this.currentPage);
+        
+        if (this.privateUnlocked) {
+            url.searchParams.set('private', '1');
+            url.searchParams.set('privatePage', this.privateCurrentPage);
+        } else {
+            url.searchParams.delete('private');
+            url.searchParams.delete('privatePage');
+        }
+        
+        window.history.replaceState(state, '', url);
+    },
+
     renderEssays: function(essays) {
         const waterfall = document.getElementById('waterfall_public');
         if (!waterfall) return;
@@ -301,145 +490,6 @@ var essayManager = {
         });
     },
 
-
-
-    // createEssayElement: function(item, index) {
-    //     const li = document.createElement('li');
-    //     li.className = 'bber-item';
-    //     li.setAttribute('data-index', index);
-
-    //     let imagesHtml = '';
-    //     if (item.image) {
-    //         if (item.image.length === 1) {
-    //             imagesHtml = `
-    //                 <div class="bber-container-img">
-    //                     <a class="bber-content-img-one" href="${item.image[0]}" target="_blank" data-fancybox="gallery" data-caption="">
-    //                         <img src="${item.image[0]}" loading="lazy">
-    //                     </a>
-    //                 </div>
-    //             `;
-    //         } else {
-    //             imagesHtml = `
-    //                 <div class="bber-container-img">
-    //                     ${item.image.map(img => `
-    //                         <a class="bber-content-img" href="${img}" target="_blank" data-fancybox="gallery" data-caption="">
-    //                             <img src="${img}" loading="lazy">
-    //                         </a>
-    //                     `).join('')}
-    //                     <div class="bber-content-noimg"></div>
-    //                     <div class="bber-content-noimg"></div>
-    //                     <div class="bber-content-noimg"></div>
-    //                 </div>
-    //             `;
-    //         }
-    //     }
-
-    //     let musicHtml = '';
-    //     if (item.aplayer) {
-    //         musicHtml = `
-    //             <div class="bber-music">
-    //                 <div class="aplayer no-destroy" 
-    //                     data-id="${item.aplayer.id}" 
-    //                     data-server="${item.aplayer.server}" 
-    //                     data-type="song" 
-    //                     data-order="list" 
-    //                     data-preload="none" 
-    //                     data-autoplay="false" 
-    //                     data-mutex="true" 
-    //                     data-theme="var(--anzhiyu-main)">
-    //                 </div>
-    //             </div>
-    //         `;
-    //     }
-
-    //     let bilibiliHtml = '';
-    //     if (item.bilibili) {
-    //         bilibiliHtml = `
-    //             <div class="aspect-ratio">
-    //                 <iframe src="https://player.bilibili.com/player.html?bvid=${item.bilibili}&page=1&as_wide=1&high_quality=1&danmaku=0&autoplay=false" 
-    //                         scrolling="no" border="0" frameborder="no" framespacing="0" 
-    //                         high_quality="1" danmaku="1" allowfullscreen="true">
-    //                 </iframe>
-    //             </div>
-    //         `;
-    //     }
-
-    //     const contentText = item.content.replace(/<br\s*\/?>/gi, '');
-    //     // 使用新的日期格式化方法
-    //     const dateObj = new Date(item.date);
-    //     const formattedDate = this.formatLocalDate(dateObj);
-
-    //     li.innerHTML = `
-    //         <div class="bber-content">
-    //             <p class="datacont">${item.content}</p>
-    //             ${imagesHtml}
-    //             ${musicHtml}
-    //             ${bilibiliHtml}
-    //         </div>
-    //         <hr>
-    //         <div class="bber-bottom">
-    //             <div class="bber-info">
-    //                 <div class="bber-info-time">
-    //                     <i class="far fa-clock"></i>
-    //                     <time class="datatime" datetime="${item.date}">${formattedDate}</time>
-    //                 </div>
-    //                 ${item.link ? `
-    //                     <a class="bber-content-link" target="_blank" title="跳转到短文指引的链接" href="${item.link}" rel="external nofollow">
-    //                         <i class="fas fa-link"></i>链接
-    //                     </a>
-    //                 ` : ''}
-    //                 ${item.from ? `
-    //                     <div class="bber-info-from">
-    //                         <i class="fas fa-fire"></i>
-    //                         <span>${item.from}</span>
-    //                     </div>
-    //                 ` : ''}
-    //                 ${item.location ? `
-    //                     <div class="bber-info-from">
-    //                         <i class="fas fa-location-dot"></i>
-    //                         <span>${item.location}</span>
-    //                     </div>
-    //                 ` : ''}
-    //             </div>
-    //             <div class="bber-reply" onclick="essayManager.commentText('${contentText.replace(/'/g, "\\'")}')">
-    //                 <i class="fa-solid fa-message"></i>
-    //             </div>
-    //         </div>
-    //     `;
-
-    //     return li;
-    // },
-
-    // // 日期格式化方法
-    // formatLocalDate: function(date) {
-    //     const now = new Date();
-    //     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    //     const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    //     const diffTime = today - targetDate;
-    //     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        
-    //     if (diffDays === 0) {
-    //         return '今天';
-    //     } else if (diffDays === 1) {
-    //         return '昨天';
-    //     } else if (diffDays === 2) {
-    //         return '前天';
-    //     // } else if (diffDays < 7) {
-    //     //     return `${diffDays}天前`;
-    //     // } else if (diffDays < 30) {
-    //     //     return `${Math.floor(diffDays / 7)}周前`;
-    //     } else {
-    //         // 显示具体日期
-    //         const year = date.getFullYear();
-    //         const month = String(date.getMonth() + 1).padStart(2, '0');
-    //         const day = String(date.getDate()).padStart(2, '0');
-    //         return `${year}-${month}-${day}`;
-    //     }
-    // },
-
-
-    //如果是"今天"昨天"前天"大前天"就显示汉字，否则就显示相应的YYYY/MM/DD
-    //当我标注date: 2025/3/13时就只显示这个日期，当我标注date: 2025/6/14 20:40:00，则显示具体到时分秒
     createEssayElement: function(item, index) {
         const li = document.createElement('li');
         li.className = 'bber-item';
@@ -593,15 +643,11 @@ var essayManager = {
                 const minutes = String(date.getMinutes()).padStart(2, '0');
                 const seconds = String(date.getSeconds()).padStart(2, '0');
                 return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
-                // return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
             } else {
                 return `${year}/${month}/${day}`;
-                // return `${year}-${month}-${day}`;
             }
         }
     },
-    //---
-
 
     renderPagination: function() {
         const totalPages = Math.ceil(this.allEssays.length / this.itemsPerPage);
@@ -681,7 +727,7 @@ var essayManager = {
         }
     },
 
-// 修改初始化瀑布流的方法
+    // 修改初始化瀑布流的方法
     initWaterfall: function() {
         const publicWaterfall = document.getElementById('waterfall_public');
         const privateWaterfall = document.getElementById('waterfall_private');
@@ -707,11 +753,11 @@ var essayManager = {
         }
     },
 
-
     // 修改 saveState 和 restoreState 方法以包含个人区状态
     saveState: function() {
         sessionStorage.setItem('essayCurrentPage', this.currentPage.toString());
         sessionStorage.setItem('essayPrivateUnlocked', this.privateUnlocked.toString());
+        sessionStorage.setItem('essayPrivateCurrentPage', this.privateCurrentPage.toString());
     },
 
     restoreState: function() {
@@ -723,7 +769,26 @@ var essayManager = {
         const savedUnlocked = sessionStorage.getItem('essayPrivateUnlocked');
         if (savedUnlocked === 'true') {
             this.privateUnlocked = true;
+            // 恢复个人区页码
+            const savedPrivatePage = parseInt(sessionStorage.getItem('essayPrivateCurrentPage'));
+            if (savedPrivatePage && !isNaN(savedPrivatePage)) {
+                this.privateCurrentPage = savedPrivatePage;
+            }
             this.unlockPrivateZone();
+        }
+        
+        // 检查URL参数，优先使用URL中的状态
+        const urlParams = new URLSearchParams(window.location.search);
+        const privateParam = urlParams.get('private');
+        const privatePage = parseInt(urlParams.get('privatePage')) || 1;
+        const publicPage = parseInt(urlParams.get('publicPage')) || 1;
+        
+        if (privateParam === '1') {
+            this.privateUnlocked = true;
+            this.privateCurrentPage = privatePage;
+            this.currentPage = publicPage;
+            this.unlockPrivateZone();
+            this.renderPagination();
         }
     },
 

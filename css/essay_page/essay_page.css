@@ -1,3 +1,4 @@
+
 /* ========== 页面整体样式 ========== */
 #page:has(#essay_page) {
     border: 0;
@@ -425,17 +426,15 @@
 /* ========== 响应式样式 ========== */
 @media screen and (max-width: 1300px) {
     #bber .timeline ul li.bber-item {
-        /* width: 49%;
-        margin-right: 1%; */
-        width: 49%; /* 从49%调整到48% */
+        /* width: 49%; */
+        width: 48%; /* 从49%调整到48% */
         margin: 0 1% 1.5rem 1%; /* 保持一致的间距 */
     }
 }
 
 @media screen and (max-width: 768px) {
     #bber .timeline ul li.bber-item {
-        /* width: 100%;
-        margin-right: 0px; */
+        /* width: 100%; */
         width: 98%; /* 从100%调整到98% */
         margin: 0 1% 1.5rem 1%; /* 保持一致的间距 */
         padding: 1.2rem; /* 移动端适当减小内边距 */
@@ -548,8 +547,6 @@
     100% { transform: rotate(360deg); }
 }
 
-
-
 /* ========== 个人区样式 ========== */
 .zone-header {
     display: flex;
@@ -594,21 +591,37 @@
     background: var(--anzhiyu-secondbg) !important;
     border: 1px solid var(--anzhiyu-green) !important;
 }
-
 #privateZoneBtn.unlocked {
     background: var(--anzhiyu-green) !important;
     color: var(--anzhiyu-white) !important;
 } */
-
-/* 个人区按钮样式 */
+ 
+ /* 个人区按钮特殊样式 */
 #privateZoneBtn {
-    background: linear-gradient(135deg, var(--anzhiyu-green), var(--anzhiyu-blue));
+    /* 背景：135度角度的渐变，从绿色渐变到蓝色 */
+    background: linear-gradient(135deg, var(--anzhiyu-green), var(--anzhiyu-blue)); /* 设置按钮的背景为线性渐变，渐变角度为135度，从绿色（var(--anzhiyu-green)）渐变到蓝色（var(--anzhiyu-blue)） */
+    /* 文字颜色：白色，!important确保优先级最高 */
+    color: var(--anzhiyu-white) !important;
+}
+#privateZoneBtn.unlocked {
+    /* 背景：135度角度的渐变，从红色渐变到橙色 */
+    /* background: linear-gradient(135deg, var(--anzhiyu-red), var(--anzhiyu-orange)); */
+    background: var(--anzhiyu-green) !important;
     color: var(--anzhiyu-white) !important;
 }
 
-#privateZoneBtn.unlocked {
-    background: linear-gradient(135deg, var(--anzhiyu-red), var(--anzhiyu-orange));
+/* 方案2：不同的渐变方向 */
+/* #privateZoneBtn {
+    紫蓝色渐变
+    background: linear-gradient(45deg, #667eea, #764ba2);
 }
+
+#privateZoneBtn.unlocked {
+    粉红色渐变
+    background: linear-gradient(45deg, #f093fb, #f5576c); 
+} */
+
+
 
 /* 模态框动画 */
 #privateZoneModal {
@@ -680,11 +693,6 @@
     margin: 0;
     font-size: 1rem;
 }
-
-
-
-
-/* 在 essay_page.css 中添加这些样式 */
 
 /* ========== 顶部横幅布局优化 ========== */
 .author-content.author-content-item.essayPage.single .card-content {
@@ -881,20 +889,7 @@
     }
 }
 
-/* @media screen and (max-width: 480px) {
-    .banner-button-group {
-        flex-direction: column;
-        width: 100%;
-        gap: 0.75rem;
-    }
-    
-    .card-content .banner-button-group .banner-button {
-        min-width: 100%;
-        width: 100%;
-    }
-} */
-
-/* ========== 移动端按钮优化 ========== */
+/* ========== 移动端按钮优化 - 修复文字显示问题 ========== */
 @media screen and (max-width: 480px) {
     .banner-button-group {
         flex-direction: column;
@@ -915,6 +910,9 @@
         white-space: nowrap;
         overflow: visible;
         text-overflow: clip;
+        /* 修复：确保"个人区"文字完整显示 */
+        min-width: 60px; /* 为文字设置最小宽度 */
+        text-align: center;
     }
     
     /* 如果有需要，可以进一步调整图标和文字的比例 */
@@ -933,5 +931,29 @@
     
     .banner-button-text {
         letter-spacing: -0.5px; /* 稍微压缩字间距 */
+        min-width: 55px; /* 为小屏幕进一步调整最小宽度 */
     }
+}
+
+/* ========== 个人区分页样式 ========== */
+.private-pagination {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.private-pagination .pagination-item {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+}
+
+/* ========== 个人区提示信息样式 ========== */
+#private-bber-tips {
+    font-size: 13px;
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5rem;
+    color: var(--anzhiyu-secondtext);
 }
