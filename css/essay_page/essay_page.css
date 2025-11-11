@@ -1,4 +1,3 @@
-
 /* ========== 页面整体样式 ========== */
 #page:has(#essay_page) {
     border: 0;
@@ -18,7 +17,7 @@
 /* ========== 顶部横幅样式 ========== */
 .author-content.author-content-item.essayPage.single {
     height: 19rem;
-    background: url(https://youpai.hanvon.top/blog/FnL/2022_12_01.jpg) left 50% / cover no-repeat;
+    background: url(https://youpai.hanvon.top/blog/FnL/2022_12_01.jpg ) left 50% / cover no-repeat;
     color: var(--anzhiyu-white);
     overflow: hidden;
     margin-top: 0px;
@@ -866,137 +865,35 @@
     }
 }
 
-/* ========== 顶部横幅布局优化 ========== */
-.author-content.author-content-item.essayPage.single .card-content {
-    padding: 2rem 2.5rem; /* 增加内边距 */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* 更好的空间分布 */
-    height: 100%;
-}
-
-.author-content-item .content-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end; /* 底部对齐 */
-    margin-top: auto; /* 推到容器底部 */
-    padding-top: 1rem; /* 增加顶部间距 */
-}
-
-.content-bottom .tips {
-    font-size: 1rem;
-    color: var(--anzhiyu-white);
-    opacity: 0.9;
-    margin: 0;
-    align-self: flex-end; /* 底部对齐 */
-}
-
-.banner-button-group {
-    display: flex;
-    gap: 1rem; /* 使用gap替代margin-left，更现代的间距方式 */
-    align-items: center;
-    justify-content: flex-end; /* 新增：按钮组右对齐 */
-}
-
-/* 按钮样式优化 - 减小宽度 */
-.card-content .banner-button-group .banner-button {
-    height: 44px; /* 稍微增加高度 */
-    min-width: 100px; /* 减小最小宽度，从120px改为100px */
-    max-width: 140px; /* 新增：设置最大宽度 */
-    padding: 0 1.2rem; /* 减小水平内边距 */
-    border-radius: 22px; /* 圆角 */
-    justify-content: center;
-    background: var(--anzhiyu-white);
-    color: var(--anzhiyu-black);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem; /* 图标和文字间距 */
-    transition: all 0.3s ease;
-    cursor: pointer;
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    transform: translateZ(0);
-    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.2);
-    text-decoration: none; /* 移除链接下划线 */
-    border: none; /* 移除边框 */
-    font-weight: 600; /* 字体加粗 */
-    flex-shrink: 0; /* 新增：防止按钮被压缩 */
-}
-
-.card-content .banner-button-group .banner-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 20px -4px rgba(0, 0, 0, 0.3);
-}
-
-.card-content .banner-button-group .banner-button i {
-    font-size: 1.1rem; /* 稍微减小图标大小 */
-    transition: transform 0.3s ease;
-}
-
-.card-content .banner-button-group .banner-button:hover i {
-    transform: scale(1.1);
-}
-
-/* 个人区按钮特殊样式 */
-#privateZoneBtn {
-    background: linear-gradient(135deg, var(--anzhiyu-green), var(--anzhiyu-blue));
-    color: var(--anzhiyu-white) !important;
-}
-
-#privateZoneBtn.unlocked {
-    background: linear-gradient(135deg, var(--anzhiyu-red), var(--anzhiyu-orange));
-}
-
-/* 关于我按钮样式 */
-.card-content .banner-button-group .banner-button:first-child {
-    background: var(--anzhiyu-secondbg);
-    color: var(--anzhiyu-fontcolor);
-}
-
-.card-content .banner-button-group .banner-button:first-child:hover {
-    background: var(--anzhiyu-main);
-    color: var(--anzhiyu-white);
-}
-
-/* ========== 移动端按钮优化 - 减小宽度并右对齐 ========== */
+/* ========== 移动端按钮优化 - 完全修复显示问题 ========== */
 @media screen and (max-width: 480px) {
     .author-content.author-content-item.essayPage.single {
-        height: 22rem; /* 增加移动端横幅高度，为按钮提供更多空间 */
-        min-height: 22rem; /* 确保最小高度 */
+        height: 18rem; /* 增加移动端横幅高度，为按钮提供更多空间 */
+        min-height: 18rem; /* 确保最小高度 */
     }
     
     .author-content-item .content-bottom {
-        gap: 1.2rem; /* 增加底部内容间距 */
+        gap: 1.5rem; /* 增加底部内容间距 */
         margin-top: auto;
         padding-bottom: 1rem; /* 增加底部内边距 */
-        flex-direction: row; /* 确保水平布局 */
-        justify-content: space-between; /* 左侧提示文字，右侧按钮 */
-        align-items: flex-end; /* 底部对齐 */
     }
     
     .banner-button-group {
-        flex-direction: row; /* 水平排列按钮 */
-        width: auto; /* 自动宽度 */
-        gap: 0.8rem; /* 减小按钮间距 */
-        margin-bottom: 0;
-        justify-content: flex-end; /* 按钮右对齐 */
-        flex-wrap: nowrap; /* 防止换行 */
+        flex-direction: column;
+        width: 100%;
+        gap: 1rem; /* 增加按钮间距 */
+        margin-bottom: 0; /* 移除底部外边距 */
     }
     
     .card-content .banner-button-group .banner-button {
-        min-width: 90px; /* 移动端进一步减小最小宽度 */
-        max-width: 110px; /* 移动端最大宽度 */
-        width: auto; /* 自动宽度 */
+        min-width: 100%;
+        width: 100%;
         justify-content: center;
-        padding: 12px 0.8rem; /* 减小内边距 */
-        font-size: 0.9rem; /* 稍微减小字体 */
-        min-height: 44px; /* 减小最小高度 */
-        height: auto;
-        line-height: 1.4;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0; /* 防止按钮被压缩 */
+        padding: 14px 1rem; /* 增加垂直内边距 */
+        font-size: 0.95rem; /* 稍微增大字体 */
+        min-height: 52px; /* 设置最小高度确保按钮完整显示 */ 
+        height: auto; /* 高度自适应 */
+        line-height: 1.4; /* 设置行高确保文字垂直居中 */
     }
     
     /* 确保按钮文字完整显示 */
@@ -1004,19 +901,17 @@
         white-space: nowrap;
         overflow: visible;
         text-overflow: clip;
-        min-width: auto; /* 自动最小宽度 */
+        min-width: 60px; /* 为文字设置最小宽度 */
         text-align: center;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem; /* 稍微减小字体 */
     }
     
     /* 按钮图标样式 */
     .card-content .banner-button-group .banner-button i {
-        font-size: 1rem; /* 移动端图标稍微小一点 */
-        min-width: 18px;
-        margin-right: 4px; /* 减小图标和文字间距 */
+        font-size: 1.1rem;
+        min-width: 22px;
     }
     
     /* 调整卡片内容的内边距 */
@@ -1029,76 +924,50 @@
     .author-content-item-title {
         margin-bottom: 0.5rem; /* 减小标题底部边距 */
     }
-    
-    /* 提示文字样式调整 */
-    .content-bottom .tips {
-        font-size: 0.9rem; /* 稍微减小提示文字 */
-        align-self: flex-end; /* 底部对齐 */
-        margin-bottom: 0;
-    }
 }
 
 /* 针对更小的屏幕进一步优化 */
 @media screen and (max-width: 360px) {
     .author-content.author-content-item.essayPage.single {
-        height: 20rem; /* 小屏幕稍微减小高度 */
-        min-height: 20rem;
-    }
-    
-    .banner-button-group {
-        gap: 0.6rem; /* 进一步减小按钮间距 */
+        height: 17rem; /* 小屏幕稍微减小高度 */
+        min-height: 17rem;
     }
     
     .card-content .banner-button-group .banner-button {
-        min-width: 85px; /* 进一步减小最小宽度 */
-        max-width: 100px;
-        padding: 10px 0.7rem;
-        min-height: 42px;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
+        padding: 12px 0.8rem;
+        min-height: 48px; /* 小屏幕稍微减小高度 */
     }
     
     .banner-button-text {
-        font-size: 0.8rem;
         letter-spacing: -0.3px;
+        min-width: 55px;
     }
     
     .card-content {
         padding: 1.2rem 1rem; /* 小屏幕进一步调整内边距 */
     }
-    
-    .content-bottom .tips {
-        font-size: 0.85rem; /* 小屏幕提示文字更小 */
-    }
 }
 
-/* 超小屏幕优化 */
-@media screen and (max-width: 320px) {
-    .author-content.author-content-item.essayPage.single {
-        height: 19rem;
-        min-height: 19rem;
-    }
-    
-    .banner-button-group {
-        gap: 0.5rem;
-    }
-    
-    .card-content .banner-button-group .banner-button {
-        min-width: 80px;
-        max-width: 90px;
-        padding: 8px 0.6rem;
-        min-height: 40px;
-        font-size: 0.8rem;
-    }
-    
-    .banner-button-text {
-        font-size: 0.78rem;
-    }
-    
-    .card-content {
-        padding: 1rem 0.8rem;
-    }
-    
-    .content-bottom .tips {
-        font-size: 0.8rem;
-    }
+/* ========== 个人区分页样式 ========== */
+.private-pagination {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.private-pagination .pagination-item {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+}
+
+/* ========== 个人区提示信息样式 ========== */
+#private-bber-tips {
+    font-size: 13px;
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5rem;
+    color: var(--anzhiyu-secondtext);
 }
