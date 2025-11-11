@@ -547,3 +547,339 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+
+
+/* ========== 个人区样式 ========== */
+.zone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--anzhiyu-theme-op);
+}
+
+.zone-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--anzhiyu-fontcolor);
+    margin: 0;
+}
+
+.zone-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--anzhiyu-secondtext);
+}
+
+.zone-indicator i {
+    font-size: 1rem;
+}
+
+.private-zone .zone-indicator {
+    color: var(--anzhiyu-green);
+}
+
+.private-zone {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px dashed var(--anzhiyu-theme-op);
+}
+
+/* 个人区按钮样式 */
+#privateZoneBtn {
+    background: var(--anzhiyu-secondbg) !important;
+    border: 1px solid var(--anzhiyu-green) !important;
+}
+
+#privateZoneBtn.unlocked {
+    background: var(--anzhiyu-green) !important;
+    color: var(--anzhiyu-white) !important;
+}
+
+/* 模态框动画 */
+#privateZoneModal {
+    display: none;
+}
+
+#privateZoneModal.show {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 错误状态 */
+.password-error {
+    border-color: var(--anzhiyu-red) !important;
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.error-message {
+    color: var(--anzhiyu-red);
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.error-message.show {
+    display: block;
+}
+
+/* 空状态提示 */
+.empty-zone {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--anzhiyu-secondtext);
+}
+
+.empty-zone i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-zone p {
+    margin: 0;
+    font-size: 1rem;
+}
+
+
+
+
+/* 在 essay_page.css 中添加这些样式 */
+
+/* ========== 顶部横幅布局优化 ========== */
+.author-content.author-content-item.essayPage.single .card-content {
+    padding: 2rem 2.5rem; /* 增加内边距 */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 更好的空间分布 */
+    height: 100%;
+}
+
+.author-content-item .content-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end; /* 底部对齐 */
+    margin-top: auto; /* 推到容器底部 */
+    padding-top: 1rem; /* 增加顶部间距 */
+}
+
+.content-bottom .tips {
+    font-size: 1rem;
+    color: var(--anzhiyu-white);
+    opacity: 0.9;
+    margin: 0;
+    align-self: flex-end; /* 底部对齐 */
+}
+
+.banner-button-group {
+    display: flex;
+    gap: 1rem; /* 使用gap替代margin-left，更现代的间距方式 */
+    align-items: center;
+}
+
+/* 按钮样式优化 */
+.card-content .banner-button-group .banner-button {
+    height: 44px; /* 稍微增加高度 */
+    min-width: 120px; /* 设置最小宽度，让按钮大小一致 */
+    padding: 0 1.5rem;
+    border-radius: 22px; /* 圆角 */
+    justify-content: center;
+    background: var(--anzhiyu-white);
+    color: var(--anzhiyu-black);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* 图标和文字间距 */
+    transition: all 0.3s ease;
+    cursor: pointer;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transform: translateZ(0);
+    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.2);
+    text-decoration: none; /* 移除链接下划线 */
+    border: none; /* 移除边框 */
+    font-weight: 600; /* 字体加粗 */
+}
+
+.card-content .banner-button-group .banner-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px -4px rgba(0, 0, 0, 0.3);
+}
+
+.card-content .banner-button-group .banner-button i {
+    font-size: 1.2rem; /* 统一的图标大小 */
+    transition: transform 0.3s ease;
+}
+
+.card-content .banner-button-group .banner-button:hover i {
+    transform: scale(1.1);
+}
+
+/* 个人区按钮特殊样式 */
+#privateZoneBtn {
+    background: linear-gradient(135deg, var(--anzhiyu-green), var(--anzhiyu-blue));
+    color: var(--anzhiyu-white) !important;
+}
+
+#privateZoneBtn.unlocked {
+    background: linear-gradient(135deg, var(--anzhiyu-red), var(--anzhiyu-orange));
+}
+
+/* 关于我按钮样式 */
+.card-content .banner-button-group .banner-button:first-child {
+    background: var(--anzhiyu-secondbg);
+    color: var(--anzhiyu-fontcolor);
+}
+
+.card-content .banner-button-group .banner-button:first-child:hover {
+    background: var(--anzhiyu-main);
+    color: var(--anzhiyu-white);
+}
+
+/* ========== 模态框样式优化 ========== */
+#privateZoneModal .modal-content {
+    background: var(--anzhiyu-card-bg);
+    padding: 2.5rem;
+    border-radius: 16px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    border: var(--style-border-always);
+}
+
+#privateZoneModal .modal-content h3 {
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--anzhiyu-fontcolor);
+}
+
+#privateZoneModal .modal-content p {
+    margin-bottom: 1.5rem;
+    color: var(--anzhiyu-secondtext);
+    text-align: center;
+    line-height: 1.5;
+}
+
+#privateZoneModal .modal-content input {
+    width: 100%;
+    padding: 1rem;
+    border: var(--style-border-always);
+    border-radius: 10px;
+    background: var(--anzhiyu-background);
+    color: var(--anzhiyu-fontcolor);
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+#privateZoneModal .modal-content input:focus {
+    outline: none;
+    border-color: var(--anzhiyu-main);
+    box-shadow: 0 0 0 3px var(--anzhiyu-main-op);
+}
+
+#privateZoneModal .modal-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+#privateZoneModal .modal-buttons button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+#cancelPrivateBtn {
+    border: var(--style-border-always);
+    background: var(--anzhiyu-secondbg);
+    color: var(--anzhiyu-fontcolor);
+}
+
+#cancelPrivateBtn:hover {
+    background: var(--anzhiyu-gray-op);
+}
+
+#confirmPrivateBtn {
+    border: none;
+    background: var(--anzhiyu-main);
+    color: var(--anzhiyu-white);
+}
+
+#confirmPrivateBtn:hover {
+    background: var(--anzhiyu-theme);
+    transform: translateY(-1px);
+}
+
+/* ========== 响应式优化 ========== */
+@media screen and (max-width: 768px) {
+    .author-content.author-content-item.essayPage.single .card-content {
+        padding: 1.5rem;
+    }
+    
+    .author-content-item .content-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .banner-button-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .card-content .banner-button-group .banner-button {
+        min-width: calc(50% - 0.5rem); /* 两个按钮各占一半减去间距 */
+        justify-content: center;
+    }
+    
+    .content-bottom .tips {
+        align-self: flex-start;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .banner-button-group {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.75rem;
+    }
+    
+    .card-content .banner-button-group .banner-button {
+        min-width: 100%;
+        width: 100%;
+    }
+}

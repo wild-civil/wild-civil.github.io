@@ -4,12 +4,16 @@ var essayManager = {
     allEssays: [],
     isLoading: false,
 
+    privateUnlocked: false,
+    privatePassword: "123456", // 默认密码，修改进入个人区域
+
     init: function() {
         this.loadEssayData();
         this.setupEventListeners();
         this.restoreState();
+        this.initPrivateZoneModal();
     },
-
+    
     loadEssayData: function() {
         // 从全局变量或直接数据加载
         if (window.essayData && Array.isArray(window.essayData)) {
@@ -20,6 +24,225 @@ var essayManager = {
             console.error('Essay data not found');
         }
     },
+
+    //
+    // 在 loadEssayData 方法后添加个人区相关方法
+    loadPrivateEssayData: function() {
+        if (window.privateEssayData && Array.isArray(window.privateEssayData)) {
+            const privateEssays = this.flattenEssayData(window.privateEssayData);
+            this.renderPrivateEssays(privateEssays);
+        } else {
+            this.showEmptyPrivateZone();
+        }
+    },
+
+    renderPrivateEssays: function(essays) {
+        const waterfall = document.getElementById('waterfall_private');
+        if (!waterfall) return;
+
+        // 清空现有内容
+        waterfall.innerHTML = '';
+
+        if (essays.length === 0) {
+            this.showEmptyPrivateZone();
+            return;
+        }
+
+        essays.forEach((item, index) => {
+            const essayElement = this.createEssayElement(item, index);
+            waterfall.appendChild(essayElement);
+        });
+
+        // 初始化个人区的瀑布流
+        setTimeout(() => {
+            this.initPrivateWaterfall();
+        }, 100);
+    },
+
+    showEmptyPrivateZone: function() {
+        const privateZone = document.querySelector('.private-zone');
+        if (privateZone) {
+            const emptyHtml = `
+                <div class="empty-zone">
+                    <i class="fas fa-lock"></i>
+                    <p>暂无个人内容</p>
+                </div>
+            `;
+            privateZone.querySelector('.list').innerHTML = emptyHtml;
+        }
+    },
+
+    initPrivateWaterfall: function() {
+        const waterfall = document.getElementById('waterfall_private');
+        if (!waterfall) return;
+
+        setTimeout(() => {
+            if (typeof window.waterfall === 'function') {
+                try {
+                    window.waterfall('#waterfall_private');
+                    
+                    setTimeout(() => {
+                        waterfall.classList.add('show');
+                        waterfall.style.opacity = '1';
+                    }, 100);
+                } catch (error) {
+                    console.error('Private waterfall layout error:', error);
+                }
+            }
+        }, 50);
+    },
+
+    togglePrivateZone: function() {
+        if (this.privateUnlocked) {
+            this.lockPrivateZone();
+        } else {
+            this.showPasswordModal();
+        }
+    },
+
+    showPasswordModal: function() {
+        const modal = document.getElementById('privateZoneModal');
+        const passwordInput = document.getElementById('privateZonePassword');
+        const errorMsg = document.querySelector('.error-message');
+        
+        if (modal && passwordInput) {
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('show');
+                passwordInput.focus();
+            }, 10);
+            
+            // 清除错误状态
+            passwordInput.classList.remove('password-error');
+            if (errorMsg) errorMsg.classList.remove('show');
+        }
+    },
+
+    hidePasswordModal: function() {
+        const modal = document.getElementById('privateZoneModal');
+        const passwordInput = document.getElementById('privateZonePassword');
+        
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                if (passwordInput) passwordInput.value = '';
+            }, 300);
+        }
+    },
+
+    initPrivateZoneModal: function() {
+        const confirmBtn = document.getElementById('confirmPrivateBtn');
+        const cancelBtn = document.getElementById('cancelPrivateBtn');
+        const passwordInput = document.getElementById('privateZonePassword');
+        
+        if (confirmBtn) {
+            confirmBtn.onclick = () => this.verifyPassword();
+        }
+        
+        if (cancelBtn) {
+            cancelBtn.onclick = () => this.hidePasswordModal();
+        }
+        
+        if (passwordInput) {
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.verifyPassword();
+                }
+            });
+        }
+        
+        // 点击模态框背景关闭
+        const modal = document.getElementById('privateZoneModal');
+        if (modal) {
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    this.hidePasswordModal();
+                }
+            };
+        }
+    },
+
+    verifyPassword: function() {
+        const passwordInput = document.getElementById('privateZonePassword');
+        const errorMsg = document.querySelector('.error-message');
+        const enteredPassword = passwordInput.value.trim();
+        
+        if (!enteredPassword) {
+            this.showPasswordError('请输入密码');
+            return;
+        }
+        
+        if (enteredPassword === this.privatePassword) {
+            this.unlockPrivateZone();
+            this.hidePasswordModal();
+        } else {
+            this.showPasswordError('密码错误，请重新输入');
+        }
+    },
+
+    showPasswordError: function(message) {
+        const passwordInput = document.getElementById('privateZonePassword');
+        const errorMsg = document.querySelector('.error-message');
+        
+        if (passwordInput) {
+            passwordInput.classList.add('password-error');
+        }
+        
+        if (errorMsg) {
+            errorMsg.textContent = message;
+            errorMsg.classList.add('show');
+        }
+        
+        // 3秒后清除错误状态
+        setTimeout(() => {
+            if (passwordInput) passwordInput.classList.remove('password-error');
+            if (errorMsg) errorMsg.classList.remove('show');
+        }, 3000);
+    },
+
+    unlockPrivateZone: function() {
+        this.privateUnlocked = true;
+        this.saveState();
+        
+        // 更新按钮状态
+        const privateBtn = document.getElementById('privateZoneBtn');
+        if (privateBtn) {
+            privateBtn.classList.add('unlocked');
+            privateBtn.querySelector('span').textContent = '退出个人区';
+        }
+        
+        // 显示个人区
+        const privateZone = document.querySelector('.private-zone');
+        if (privateZone) {
+            privateZone.style.display = 'block';
+            this.loadPrivateEssayData();
+        }
+        
+        // 滚动到个人区
+        setTimeout(() => {
+            privateZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500);
+    },
+
+    lockPrivateZone: function() {
+        this.privateUnlocked = false;
+        this.saveState();
+        
+        // 更新按钮状态
+        const privateBtn = document.getElementById('privateZoneBtn');
+        if (privateBtn) {
+            privateBtn.classList.remove('unlocked');
+            privateBtn.querySelector('span').textContent = '个人区';
+        }
+        
+        // 隐藏个人区
+        const privateZone = document.querySelector('.private-zone');
+        if (privateZone) {
+            privateZone.style.display = 'none';
+        }
+    },
+    //
 
     flattenEssayData: function(essayData) {
         const flattened = [];
@@ -51,12 +274,23 @@ var essayManager = {
         }, 100);
     },
 
+    // 修改现有的 renderEssays 方法为渲染公开区域
     renderEssays: function(essays) {
-        const waterfall = document.getElementById('waterfall');
+        const waterfall = document.getElementById('waterfall_public');
         if (!waterfall) return;
 
         // 清空现有内容
         waterfall.innerHTML = '';
+
+        if (essays.length === 0) {
+            waterfall.innerHTML = `
+                <div class="empty-zone">
+                    <i class="fas fa-feather"></i>
+                    <p>暂无公开内容</p>
+                </div>
+            `;
+            return;
+        }
 
         essays.forEach((item, index) => {
             const essayElement = this.createEssayElement(item, index);
@@ -444,38 +678,49 @@ var essayManager = {
         }
     },
 
+// 修改初始化瀑布流的方法
     initWaterfall: function() {
-        const waterfall = document.getElementById('waterfall');
-        if (!waterfall) return;
-
-        // 重置瀑布流状态
-        waterfall.style.height = 'auto';
+        const publicWaterfall = document.getElementById('waterfall_public');
+        const privateWaterfall = document.getElementById('waterfall_private');
         
-        setTimeout(() => {
-            if (typeof window.waterfall === 'function') {
-                try {
-                    window.waterfall('#waterfall');
-                    
-                    // 确保瀑布流正确显示
-                    setTimeout(() => {
-                        waterfall.classList.add('show');
-                        waterfall.style.opacity = '1';
-                    }, 100);
-                } catch (error) {
-                    console.error('Waterfall layout error:', error);
+        if (publicWaterfall) {
+            setTimeout(() => {
+                if (typeof window.waterfall === 'function') {
+                    try {
+                        window.waterfall('#waterfall_public');
+                        setTimeout(() => {
+                            publicWaterfall.classList.add('show');
+                            publicWaterfall.style.opacity = '1';
+                        }, 100);
+                    } catch (error) {
+                        console.error('Public waterfall layout error:', error);
+                    }
                 }
-            }
-        }, 50);
+            }, 50);
+        }
+        
+        if (privateWaterfall && this.privateUnlocked) {
+            this.initPrivateWaterfall();
+        }
     },
 
+
+    // 修改 saveState 和 restoreState 方法以包含个人区状态
     saveState: function() {
         sessionStorage.setItem('essayCurrentPage', this.currentPage.toString());
+        sessionStorage.setItem('essayPrivateUnlocked', this.privateUnlocked.toString());
     },
 
     restoreState: function() {
         const savedPage = parseInt(sessionStorage.getItem('essayCurrentPage'));
         if (savedPage && !isNaN(savedPage)) {
             this.currentPage = savedPage;
+        }
+        
+        const savedUnlocked = sessionStorage.getItem('essayPrivateUnlocked');
+        if (savedUnlocked === 'true') {
+            this.privateUnlocked = true;
+            this.unlockPrivateZone();
         }
     },
 
