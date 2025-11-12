@@ -1124,71 +1124,237 @@
 
 
 
-/* 试试 有效果 */
-/* ========== 最终版：缓慢左右飘动动画 ========== */
-@keyframes slowHorizontalFloat {
+/* 试试 有点效果 */
+/* ========== 移动端顶部图摆动动画 ========== */
+/* 先测试一个更明显的动画，确保动画本身工作 */
+@keyframes headerBackgroundAnimationTest {
   0% {
-    background-position: 50% 50%;
+    background-position: 30% 50%;
+    transform: scale(1);
   }
-  15% {
-    background-position: 54% 50%; /* 向右4% - 轻微但可见 */
+  25% {
+    background-position: 70% 50%;
+    transform: scale(1.02);
   }
-  30% {
-    background-position: 50% 50%; /* 回到中间 */
-  }
-  45% {
-    background-position: 46% 50%; /* 向左4% - 轻微但可见 */
-  }
-  60% {
-    background-position: 50% 50%; /* 回到中间 */
+  50% {
+    background-position: 30% 50%;
+    transform: scale(1);
   }
   75% {
-    background-position: 52% 50%; /* 向右2% - 更轻微 */
-  }
-  90% {
-    background-position: 48% 50%; /* 向左2% - 更轻微 */
+    background-position: 70% 50%;
+    transform: scale(1.02);
   }
   100% {
-    background-position: 50% 50%; /* 回到中间 */
+    background-position: 30% 50%;
+    transform: scale(1);
   }
 }
 
-@keyframes gentleHorizontalSway {
+/* 更温和的摆动动画 - 最终版本 */
+@keyframes headerBackgroundAnimation {
   0%, 100% {
-    background-position: 50% 50%;
+    background-position: 50% 50%; /* 动画起始和结束位置 */
   }
-  20% {
-    background-position: 53% 50%; /* 向右3% */
+  25% {
+    background-position: 52% 50%; /* 向右轻微移动 */
   }
-  40% {
-    background-position: 50% 50%; /* 回到中间 */
+  50% {
+    background-position: 50% 50%; /* 回中 */
   }
-  60% {
-    background-position: 47% 50%; /* 向左3% */
-  }
-  80% {
-    background-position: 50% 50%; /* 回到中间 */
+  75% {
+    background-position: 48% 50%; /* 向左轻微移动 */
   }
 }
 
-/* 在移动设备上应用缓慢飘动动画 */
+/* 在移动设备上为顶部图应用动画 */
 @media (max-width: 768px) {
   .author-content.author-content-item.essayPage.single {
+    /* 确保背景图设置正确 */
     background: url(https://youpai.hanvon.top/blog/FnL/2022_12_01.jpg) center center / cover no-repeat !important;
     
-    /* 应用缓慢飘动动画 */
-    animation: slowHorizontalFloat 35s ease-in-out infinite; /* 版本A：多段缓慢飘动 */
-    /* animation: gentleHorizontalSway 30s ease-in-out infinite; */ /* 版本B：简单左右摆动 */
+    /* 先测试明显动画 */
+    animation: headerBackgroundAnimationTest 8s ease-in-out infinite;
     
-    /* 确保只有背景在动，容器静止 */
-    transform: none !important;
+    /* 如果明显动画有效，再换成温和动画 */
+    /* animation: headerBackgroundAnimation 15s ease-in-out infinite; */
+  }
+}/* ========== 移动端顶部图摆动动画 ========== */
+/* 先测试一个更明显的动画，确保动画本身工作 */
+@keyframes headerBackgroundAnimationTest {
+  0% {
+    background-position: 30% 50%;
+    transform: scale(1);
+  }
+  25% {
+    background-position: 70% 50%;
+    transform: scale(1.02);
+  }
+  50% {
+    background-position: 30% 50%;
+    transform: scale(1);
+  }
+  75% {
+    background-position: 70% 50%;
+    transform: scale(1.02);
+  }
+  100% {
+    background-position: 30% 50%;
+    transform: scale(1);
   }
 }
 
-/* 针对小屏幕手机的优化 */
-@media (max-width: 480px) {
+/* 更温和的摆动动画 - 最终版本 */
+@keyframes headerBackgroundAnimation {
+  0%, 100% {
+    background-position: 50% 50%; /* 动画起始和结束位置 */
+  }
+  25% {
+    background-position: 52% 50%; /* 向右轻微移动 */
+  }
+  50% {
+    background-position: 50% 50%; /* 回中 */
+  }
+  75% {
+    background-position: 48% 50%; /* 向左轻微移动 */
+  }
+}
+
+/* 在移动设备上为顶部图应用动画 */
+@media (max-width: 768px) {
   .author-content.author-content-item.essayPage.single {
-    /* 在小屏幕上可以使用稍微快一点的动画 */
-    animation-duration: 25s;
+    /* 确保背景图设置正确 */
+    background: url(https://youpai.hanvon.top/blog/FnL/2022_12_01.jpg) center center / cover no-repeat !important;
+    
+    /* 先测试明显动画 */
+    animation: headerBackgroundAnimationTest 15s ease-in-out infinite;
+    
+    /* 如果明显动画有效，再换成温和动画 */
+    /* animation: headerBackgroundAnimation 15s ease-in-out infinite; */
+  }
+}
+/* 试试 有点效果 ↑ */
+
+
+
+
+/* ========== 超小屏幕按钮图标化样式 - 修正版 ========== */
+@media screen and (max-width: 400px) {
+  .author-content.author-content-item.essayPage.single {
+    position: relative; /* 为绝对定位的按钮组提供参考 */
+    overflow: visible; /* 确保按钮不会被裁剪 */
+  }
+  
+  .author-content-item .content-bottom {
+    position: static; /* 重置定位 */
+  }
+  
+  .banner-button-group {
+    position: absolute;
+    bottom: 1rem; /* 改为底部定位 */
+    right: 1rem;
+    flex-direction: column;
+    gap: 0.8rem;
+    width: auto;
+    z-index: 10;
+    margin: 0;
+  }
+  
+  .card-content .banner-button-group .banner-button {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 添加阴影增强可视性 */
+  }
+  
+  /* 隐藏按钮文字 */
+  .banner-button-text {
+    display: none !important;
+  }
+  
+  /* 调整图标大小 */
+  .card-content .banner-button-group .banner-button i {
+    font-size: 1.3rem;
+    margin: 0 !important;
+    transform: none !important;
+  }
+  
+  /* 移除按钮悬停时的图标缩放 */
+  .card-content .banner-button-group .banner-button:hover i {
+    transform: none !important;
+  }
+  
+  /* 调整卡片内容内边距，为底部的图标按钮腾出空间 */
+  .card-content {
+    padding-bottom: 5rem !important; /* 为底部的按钮留出空间 */
+    padding-right: 1rem !important; /* 恢复右侧内边距 */
+  }
+  
+  /* 调整提示信息位置 */
+  .content-bottom .tips {
+    align-self: flex-start;
+    width: 100%;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem; /* 增加与按钮的间距 */
+  }
+  
+  /* 确保按钮在内容之上 */
+  .card-content .banner-button-group {
+    pointer-events: auto;
+  }
+}
+
+/* ========== 更小屏幕的进一步优化 ========== */
+@media screen and (max-width: 360px) {
+  .banner-button-group {
+    bottom: 0.8rem;
+    right: 0.8rem;
+  }
+  
+  .card-content .banner-button-group .banner-button {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+  }
+  
+  .card-content .banner-button-group .banner-button i {
+    font-size: 1.2rem;
+  }
+  
+  .card-content {
+    padding-bottom: 4.5rem !important;
+  }
+  
+  .content-bottom .tips {
+    font-size: 0.85rem;
+  }
+}
+
+/* ========== 中等屏幕的过渡样式 ========== */
+@media screen and (max-width: 480px) and (min-width: 401px) {
+  .banner-button-group {
+    gap: 0.5rem;
+    position: static; /* 中等屏幕恢复正常布局 */
+  }
+  
+  .card-content .banner-button-group .banner-button {
+    min-width: 100px; /* 在中等小屏幕上保持有文字的按钮 */
+  }
+  
+  .banner-button-text {
+    display: flex !important;
+    font-size: 0.85rem;
+  }
+  
+  .card-content {
+    padding-bottom: 1rem !important; /* 恢复正常底部内边距 */
   }
 }
