@@ -1111,28 +1111,58 @@
 
 
 
-/* 试试 */
+/* 试试 但好像没效果 */
+/* ========== 移动端顶部图摆动动画 ========== */
+/* 先测试一个更明显的动画，确保动画本身工作 */
+@keyframes headerBackgroundAnimationTest {
+  0% {
+    background-position: 30% 50%;
+    transform: scale(1);
+  }
+  25% {
+    background-position: 70% 50%;
+    transform: scale(1.02);
+  }
+  50% {
+    background-position: 30% 50%;
+    transform: scale(1);
+  }
+  75% {
+    background-position: 70% 50%;
+    transform: scale(1.02);
+  }
+  100% {
+    background-position: 30% 50%;
+    transform: scale(1);
+  }
+}
 
-/* 移动端触发的摆动动画 */
+/* 更温和的摆动动画 - 最终版本 */
 @keyframes headerBackgroundAnimation {
   0%, 100% {
     background-position: 50% 50%; /* 动画起始和结束位置 */
   }
   25% {
-    background-position: 51% 51%; /* 向右下轻微移动 */
+    background-position: 52% 50%; /* 向右轻微移动 */
   }
   50% {
     background-position: 50% 50%; /* 回中 */
   }
   75% {
-    background-position: 49% 49%; /* 向左上轻微移动 */
+    background-position: 48% 50%; /* 向左轻微移动 */
   }
 }
 
 /* 在移动设备上为顶部图应用动画 */
 @media (max-width: 768px) {
   .author-content.author-content-item.essayPage.single {
-    /* 其他样式保持不变，仅添加动画 */
-    animation: headerBackgroundAnimation 15s ease-in-out infinite; /* 应用动画，15秒循环，无限次 */
+    /* 确保背景图设置正确 */
+    background: url(https://youpai.hanvon.top/blog/FnL/2022_12_01.jpg) center center / cover no-repeat !important;
+    
+    /* 先测试明显动画 */
+    animation: headerBackgroundAnimationTest 8s ease-in-out infinite;
+    
+    /* 如果明显动画有效，再换成温和动画 */
+    /* animation: headerBackgroundAnimation 15s ease-in-out infinite; */
   }
 }
