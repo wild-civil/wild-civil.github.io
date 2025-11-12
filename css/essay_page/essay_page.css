@@ -1125,40 +1125,70 @@
 
 
 /* 试试 有效果 */
-/* ========== 最终版移动端顶部图摆动动画 ========== */
-@keyframes mobileBackgroundSway {
-  0%, 100% {
+/* ========== 最终版：缓慢左右飘动动画 ========== */
+@keyframes slowHorizontalFloat {
+  0% {
     background-position: 50% 50%;
   }
-  25% {
-    background-position: 51.2% 50.3%;
+  15% {
+    background-position: 54% 50%; /* 向右4% - 轻微但可见 */
   }
-  50% {
-    background-position: 50% 50%;
+  30% {
+    background-position: 50% 50%; /* 回到中间 */
+  }
+  45% {
+    background-position: 46% 50%; /* 向左4% - 轻微但可见 */
+  }
+  60% {
+    background-position: 50% 50%; /* 回到中间 */
   }
   75% {
-    background-position: 48.8% 49.7%;
+    background-position: 52% 50%; /* 向右2% - 更轻微 */
+  }
+  90% {
+    background-position: 48% 50%; /* 向左2% - 更轻微 */
+  }
+  100% {
+    background-position: 50% 50%; /* 回到中间 */
   }
 }
 
-/* 在移动设备上为顶部图应用动画 */
+@keyframes gentleHorizontalSway {
+  0%, 100% {
+    background-position: 50% 50%;
+  }
+  20% {
+    background-position: 53% 50%; /* 向右3% */
+  }
+  40% {
+    background-position: 50% 50%; /* 回到中间 */
+  }
+  60% {
+    background-position: 47% 50%; /* 向左3% */
+  }
+  80% {
+    background-position: 50% 50%; /* 回到中间 */
+  }
+}
+
+/* 在移动设备上应用缓慢飘动动画 */
 @media (max-width: 768px) {
   .author-content.author-content-item.essayPage.single {
-    /* 重置背景设置，确保动画能控制背景位置 */
     background: url(https://youpai.hanvon.top/blog/FnL/2022_12_01.jpg) center center / cover no-repeat !important;
     
-    /* 应用摆动动画 */
-    animation: mobileBackgroundSway 18s ease-in-out infinite;
+    /* 应用缓慢飘动动画 */
+    animation: slowHorizontalFloat 35s ease-in-out infinite; /* 版本A：多段缓慢飘动 */
+    /* animation: gentleHorizontalSway 30s ease-in-out infinite; */ /* 版本B：简单左右摆动 */
     
-    /* 确保背景可以移动 */
-    background-attachment: scroll !important;
-    background-repeat: no-repeat !important;
+    /* 确保只有背景在动，容器静止 */
+    transform: none !important;
   }
 }
 
 /* 针对小屏幕手机的优化 */
 @media (max-width: 480px) {
   .author-content.author-content-item.essayPage.single {
-    animation: mobileBackgroundSway 15s ease-in-out infinite;
+    /* 在小屏幕上可以使用稍微快一点的动画 */
+    animation-duration: 25s;
   }
 }
