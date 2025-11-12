@@ -10,17 +10,66 @@ var essayManager = {
     privateItemsPerPage: 6, // 可以和公开区不同
     allPrivateEssays: [], // 存储所有个人短文数据
 
+    // 新增：数据加载状态跟踪
+    dataLoadRetries: 0,
+    maxRetries: 5,
+
     init: function() {
         // 只在essay页面初始化
         if (!this.isEssayPage()) {
             return;
         }
         
-        this.setupEventListeners();
-        this.restoreState();
-        this.loadEssayData();
-        this.initPrivateZoneModal();
-        this.setupHistoryListener();
+        console.log('🎯 初始化短文管理器...');
+        
+        // 增强初始化：确保DOM和数据都就绪
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.delayedInit();
+            });
+        } else {
+            this.delayedInit();
+        }
+    },
+
+    // 新增：延迟初始化，确保所有资源就绪
+    delayedInit: function() {
+        setTimeout(() => {
+            this.setupEventListeners();
+            this.restoreState();
+            this.ensureDataAndInit(); // 使用新的数据检查方法
+            this.initPrivateZoneModal();
+            this.setupHistoryListener();
+        }, 300);
+    },
+
+    // 新增：确保数据就绪后再初始化
+    ensureDataAndInit: function() {
+        if (this.isDataReady()) {
+            console.log('✅ 数据已就绪，开始加载短文...');
+            this.loadEssayData();
+        } else if (this.dataLoadRetries < this.maxRetries) {
+            this.dataLoadRetries++;
+            console.log(`🔄 数据未就绪，重试中... (${this.dataLoadRetries}/${this.maxRetries})`);
+            setTimeout(() => this.ensureDataAndInit(), 500);
+        } else {
+            console.error('❌ 数据加载失败，达到最大重试次数');
+            this.showDataError();
+        }
+    },
+
+    // 新增：检查数据是否就绪
+    isDataReady: function() {
+        return window.essayData && Array.isArray(window.essayData) && window.essayData.length > 0;
+    },
+
+    // 新增：数据错误处理
+    showDataError: function() {
+        const tips = document.getElementById('bber-tips');
+        if (tips) {
+            tips.innerHTML = '- 数据加载失败，请<a href="javascript:location.reload()" style="color: var(--anzhiyu-main); text-decoration: underline;">刷新页面</a> -';
+            tips.style.color = 'var(--anzhiyu-red)';
+        }
     },
 
     // 检查当前是否在essay页面
@@ -31,17 +80,23 @@ var essayManager = {
 
     loadEssayData: function() {
         // 从全局变量或直接数据加载
+        console.log('📥 加载短文数据...', window.essayData);
+        
         if (window.essayData && Array.isArray(window.essayData)) {
             this.allEssays = this.flattenEssayData(window.essayData);
+            console.log(`✅ 成功加载 ${this.allEssays.length} 条短文`);
             this.renderPagination();
             this.renderCurrentPage();
         } else {
-            console.error('Essay data not found');
+            console.error('❌ Essay data not found');
+            this.showDataError(); // 使用新的错误处理方法
         }
     },
 
     // 加载个人短文数据
     loadPrivateEssayData: function() {
+        console.log('🔒 加载个人短文数据...');
+        
         if (window.privateEssayData && Array.isArray(window.privateEssayData)) {
             this.allPrivateEssays = this.flattenEssayData(window.privateEssayData);
             this.renderPrivateCurrentPage();
@@ -60,15 +115,18 @@ var essayManager = {
         this.renderPrivatePagination();
         this.updatePrivateTips();
         
-        // 重新初始化瀑布流
+        // 重新初始化瀑布流 - 增加延迟确保DOM更新完成
         setTimeout(() => {
             this.initPrivateWaterfall();
-        }, 100);
+        }, 200);
     },
 
     renderPrivateEssays: function(essays) {
         const waterfall = document.getElementById('waterfall_private');
-        if (!waterfall) return;
+        if (!waterfall) {
+            console.error('❌ 个人区瀑布流容器未找到');
+            return;
+        }
 
         // 清空现有内容
         waterfall.innerHTML = '';
@@ -109,12 +167,12 @@ var essayManager = {
                     setTimeout(() => {
                         waterfall.classList.add('show');
                         waterfall.style.opacity = '1';
-                    }, 100);
+                    }, 150);
                 } catch (error) {
-                    console.error('Private waterfall layout error:', error);
+                    console.error('❌ Private waterfall layout error:', error);
                 }
             }
-        }, 50);
+        }, 100);
     },
 
     // 渲染个人区分页
@@ -141,7 +199,7 @@ var essayManager = {
 
         // 添加上一页按钮
         const prevButton = document.createElement('a');
-        prevButton.className = 'pagination-item pagination-prev';
+        prevButton.className = `pagination-item pagination-prev ${this.privateCurrentPage === 1 ? 'disabled' : ''}`;
         prevButton.innerHTML = '&laquo; 上一页';
         prevButton.onclick = () => this.prevPrivatePage();
         prevButton.href = 'javascript:void(0);';
@@ -200,6 +258,9 @@ var essayManager = {
         
         const totalPages = Math.ceil(this.allPrivateEssays.length / this.privateItemsPerPage);
         tips.textContent = `- 共 ${this.allPrivateEssays.length} 条个人短文，第 ${this.privateCurrentPage}/${totalPages} 页 -`;
+        
+        // 确保个人区提示信息有正确的样式
+        tips.style.cssText = 'color: var(--anzhiyu-secondtext); display: flex; justify-content: center; margin-top: 1rem; font-size: 14px;';
     },
 
     togglePrivateZone: function() {
@@ -322,36 +383,86 @@ var essayManager = {
             privateBtn.querySelector('span').textContent = '退出个人区';
         }
         
-        // 显示个人区
+        const publicZone = document.querySelector('.public-zone');
         const privateZone = document.querySelector('.private-zone');
-        if (privateZone) {
-            privateZone.style.display = 'block';
-            this.loadPrivateEssayData();
-        }
+        const publicPagination = document.getElementById('essay-pagination');
         
-        // 滚动到个人区
+        // 添加隐藏动画类
+        if (publicZone) publicZone.classList.add('hiding');
+        if (publicPagination) publicPagination.classList.add('hiding');
+        
+        // 延迟执行实际显示/隐藏
         setTimeout(() => {
-            privateZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 500);
+            if (publicZone) {
+                publicZone.style.display = 'none';
+                publicZone.classList.remove('hiding');
+            }
+            if (privateZone) {
+                privateZone.style.display = 'block';
+                privateZone.classList.add('showing');
+                this.loadPrivateEssayData();
+            }
+            if (publicPagination) {
+                publicPagination.style.display = 'none';
+                publicPagination.classList.remove('hiding');
+            }
+            
+            // 隐藏公开区的提示信息，显示个人区的提示信息
+            const publicTips = document.getElementById('bber-tips');
+            if (publicTips) {
+                publicTips.style.display = 'none'; // 隐藏公开区提示
+            }
+            
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 300);
     },
 
     lockPrivateZone: function() {
         this.privateUnlocked = false;
-        this.privateCurrentPage = 1; // 重置个人区页码
+        this.privateCurrentPage = 1;
         this.saveState();
         
-        // 更新按钮状态
         const privateBtn = document.getElementById('privateZoneBtn');
         if (privateBtn) {
             privateBtn.classList.remove('unlocked');
             privateBtn.querySelector('span').textContent = '个人区';
         }
         
-        // 隐藏个人区
+        const publicZone = document.querySelector('.public-zone');
         const privateZone = document.querySelector('.private-zone');
-        if (privateZone) {
-            privateZone.style.display = 'none';
-        }
+        const publicPagination = document.getElementById('essay-pagination');
+        
+        // 添加隐藏动画类（个人区）
+        if (privateZone) privateZone.classList.add('hiding');
+        
+        setTimeout(() => {
+            if (publicZone) {
+                publicZone.style.display = 'block';
+                publicZone.classList.add('showing');
+            }
+            if (privateZone) {
+                privateZone.style.display = 'none';
+                privateZone.classList.remove('hiding', 'showing');
+            }
+            if (publicPagination) {
+                publicPagination.style.display = 'block';
+                publicPagination.classList.add('showing');
+            }
+            
+            // 显示公开区的提示信息
+            const publicTips = document.getElementById('bber-tips');
+            if (publicTips) {
+                publicTips.style.display = 'flex'; // 显示公开区提示
+                // 确保提示信息是最新的
+                this.updateTips();
+            }
+            
+            // 重新初始化公开区瀑布流
+            setTimeout(() => {
+                this.initWaterfall();
+            }, 200);
+        }, 300);
     },
 
     // 设置历史记录监听
@@ -413,16 +524,19 @@ var essayManager = {
         this.renderEssays(currentEssays);
         this.updateTips();
         
-        // 重新初始化瀑布流
+        // 重新初始化瀑布流 - 增加延迟确保渲染完成
         setTimeout(() => {
             this.initWaterfall();
             this.isLoading = false;
-        }, 100);
+        }, 200);
     },
 
     renderEssays: function(essays) {
         const waterfall = document.getElementById('waterfall_public');
-        if (!waterfall) return;
+        if (!waterfall) {
+            console.error('❌ 公开区瀑布流容器未找到');
+            return;
+        }
 
         // 清空现有内容
         waterfall.innerHTML = '';
@@ -706,53 +820,92 @@ var essayManager = {
 
     // 修改初始化瀑布流的方法
     initWaterfall: function() {
-        const publicWaterfall = document.getElementById('waterfall_public');
-        const privateWaterfall = document.getElementById('waterfall_private');
-        
-        if (publicWaterfall) {
-            setTimeout(() => {
-                if (typeof window.waterfall === 'function') {
-                    try {
-                        window.waterfall('#waterfall_public');
-                        setTimeout(() => {
-                            publicWaterfall.classList.add('show');
-                            publicWaterfall.style.opacity = '1';
-                        }, 100);
-                    } catch (error) {
-                        console.error('Public waterfall layout error:', error);
+        // 只对当前可见的区域初始化瀑布流
+        if (this.privateUnlocked) {
+            // 个人区已解锁，只初始化个人区
+            const privateWaterfall = document.getElementById('waterfall_private');
+            if (privateWaterfall) {
+                setTimeout(() => {
+                    if (typeof window.waterfall === 'function') {
+                        try {
+                            window.waterfall('#waterfall_private');
+                            setTimeout(() => {
+                                privateWaterfall.classList.add('show');
+                                privateWaterfall.style.opacity = '1';
+                            }, 150);
+                        } catch (error) {
+                            console.error('❌ 个人区瀑布流布局错误:', error);
+                        }
                     }
-                }
-            }, 50);
-        }
-        
-        if (privateWaterfall && this.privateUnlocked) {
-            this.initPrivateWaterfall();
+                }, 100);
+            }
+        } else {
+            // 个人区未解锁，只初始化公开区
+            const publicWaterfall = document.getElementById('waterfall_public');
+            if (publicWaterfall) {
+                setTimeout(() => {
+                    if (typeof window.waterfall === 'function') {
+                        try {
+                            window.waterfall('#waterfall_public');
+                            setTimeout(() => {
+                                publicWaterfall.classList.add('show');
+                                publicWaterfall.style.opacity = '1';
+                            }, 150);
+                        } catch (error) {
+                            console.error('❌ 公开区瀑布流布局错误:', error);
+                        }
+                    }
+                }, 100);
+            }
         }
     },
 
     // 修改 saveState 和 restoreState 方法以包含个人区状态
     saveState: function() {
-        sessionStorage.setItem('essayCurrentPage', this.currentPage.toString());
-        sessionStorage.setItem('essayPrivateUnlocked', this.privateUnlocked.toString());
-        sessionStorage.setItem('essayPrivateCurrentPage', this.privateCurrentPage.toString());
+        try {
+            sessionStorage.setItem('essayCurrentPage', this.currentPage.toString());
+            sessionStorage.setItem('essayPrivateUnlocked', this.privateUnlocked.toString());
+            sessionStorage.setItem('essayPrivateCurrentPage', this.privateCurrentPage.toString());
+        } catch (e) {
+            console.warn('⚠️ 状态保存失败:', e);
+        }
     },
 
     restoreState: function() {
-        // 从sessionStorage恢复
-        const savedPage = parseInt(sessionStorage.getItem('essayCurrentPage'));
-        if (savedPage && !isNaN(savedPage)) {
-            this.currentPage = savedPage;
-        }
-        
-        const savedUnlocked = sessionStorage.getItem('essayPrivateUnlocked');
-        if (savedUnlocked === 'true') {
-            this.privateUnlocked = true;
-            // 恢复个人区页码
-            const savedPrivatePage = parseInt(sessionStorage.getItem('essayPrivateCurrentPage'));
-            if (savedPrivatePage && !isNaN(savedPrivatePage)) {
-                this.privateCurrentPage = savedPrivatePage;
+        try {
+            // 从sessionStorage恢复
+            const savedPage = parseInt(sessionStorage.getItem('essayCurrentPage'));
+            if (savedPage && !isNaN(savedPage)) {
+                this.currentPage = savedPage;
             }
-            this.unlockPrivateZone();
+            
+            const savedUnlocked = sessionStorage.getItem('essayPrivateUnlocked');
+            if (savedUnlocked === 'true') {
+                this.privateUnlocked = true;
+                const savedPrivatePage = parseInt(sessionStorage.getItem('essayPrivateCurrentPage'));
+                if (savedPrivatePage && !isNaN(savedPrivatePage)) {
+                    this.privateCurrentPage = savedPrivatePage;
+                }
+                // 恢复时也要正确显示/隐藏区域
+                this.unlockPrivateZone();
+            } else {
+                // 确保公开区正常显示
+                const publicZone = document.querySelector('.public-zone');
+                const privateZone = document.querySelector('.private-zone');
+                const publicPagination = document.getElementById('essay-pagination');
+                
+                if (publicZone) publicZone.style.display = 'block';
+                if (privateZone) privateZone.style.display = 'none';
+                if (publicPagination) publicPagination.style.display = 'block';
+                
+                // 确保公开区提示信息显示
+                const publicTips = document.getElementById('bber-tips');
+                if (publicTips) {
+                    publicTips.style.display = 'flex';
+                }
+            }
+        } catch (e) {
+            console.warn('⚠️ 状态恢复失败:', e);
         }
         
         // 确保渲染正确的页码
@@ -805,23 +958,51 @@ var essayManager = {
     }
 };
 
-// 初始化
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        essayManager.init();
-    }, 100);
-});
+// 增强的初始化逻辑 - 确保在正确时机初始化
+function initializeEssayManager() {
+    // 等待所有资源加载完成
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM内容加载完成，准备初始化短文管理器');
+            setTimeout(() => {
+                if (typeof essayManager !== 'undefined') {
+                    essayManager.init();
+                }
+            }, 400);
+        });
+    } else {
+        console.log('⚡ DOM已就绪，准备初始化短文管理器');
+        setTimeout(() => {
+            if (typeof essayManager !== 'undefined') {
+                essayManager.init();
+            }
+        }, 400);
+    }
+}
+
+// 立即开始初始化
+initializeEssayManager();
 
 // PJAX支持
 if (typeof pjax !== 'undefined') {
     document.addEventListener('pjax:complete', function() {
+        console.log('🔄 PJAX完成，重新初始化短文管理器');
         setTimeout(() => {
-            essayManager.init();
-        }, 100);
+            if (typeof essayManager !== 'undefined') {
+                essayManager.init();
+            }
+        }, 500);
     });
 }
 
 // 页面卸载前保存状态
 window.addEventListener('beforeunload', function() {
-    essayManager.saveState();
+    if (typeof essayManager !== 'undefined') {
+        essayManager.saveState();
+    }
+});
+
+// 新增：全局错误处理
+window.addEventListener('error', function(e) {
+    console.error('🌐 全局错误:', e.error);
 });
