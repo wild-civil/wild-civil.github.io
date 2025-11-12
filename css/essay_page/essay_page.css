@@ -15,13 +15,26 @@
 }
 
 /* ========== 顶部横幅样式 ========== */
-.author-content.author-content-item.essayPage.single {
+/* .author-content.author-content-item.essayPage.single {
     height: 19rem;
     background: url(https://youpai.hanvon.top/blog/FnL/2022_12_01.jpg ) left 50% / cover no-repeat;
     color: var(--anzhiyu-white);
     overflow: hidden;
     margin-top: 0px;
     border-radius: 24px;
+} */
+ /* ========== 顶部横幅样式 ========== */
+.author-content.author-content-item.essayPage.single {
+    height: 19rem;
+    /* 确保这里没有固定背景定位，让动画来控制 */
+    background: url(https://youpai.hanvon.top/blog/FnL/2022_12_01.jpg) center center / cover no-repeat;
+    color: var(--anzhiyu-white);
+    overflow: hidden;
+    margin-top: 0px;
+    border-radius: 24px;
+    /* 添加这些属性确保动画正常工作 */
+    background-attachment: initial !important;
+    background-repeat: no-repeat !important;
 }
 
 .author-content-item-title {
@@ -1111,58 +1124,41 @@
 
 
 
-/* 试试 但好像没效果 */
-/* ========== 移动端顶部图摆动动画 ========== */
-/* 先测试一个更明显的动画，确保动画本身工作 */
-@keyframes headerBackgroundAnimationTest {
-  0% {
-    background-position: 30% 50%;
-    transform: scale(1);
-  }
-  25% {
-    background-position: 70% 50%;
-    transform: scale(1.02);
-  }
-  50% {
-    background-position: 30% 50%;
-    transform: scale(1);
-  }
-  75% {
-    background-position: 70% 50%;
-    transform: scale(1.02);
-  }
-  100% {
-    background-position: 30% 50%;
-    transform: scale(1);
-  }
-}
-
-/* 更温和的摆动动画 - 最终版本 */
-@keyframes headerBackgroundAnimation {
+/* 试试 有效果 */
+/* ========== 最终版移动端顶部图摆动动画 ========== */
+@keyframes mobileBackgroundSway {
   0%, 100% {
-    background-position: 50% 50%; /* 动画起始和结束位置 */
+    background-position: 50% 50%;
   }
   25% {
-    background-position: 52% 50%; /* 向右轻微移动 */
+    background-position: 51.2% 50.3%;
   }
   50% {
-    background-position: 50% 50%; /* 回中 */
+    background-position: 50% 50%;
   }
   75% {
-    background-position: 48% 50%; /* 向左轻微移动 */
+    background-position: 48.8% 49.7%;
   }
 }
 
 /* 在移动设备上为顶部图应用动画 */
 @media (max-width: 768px) {
   .author-content.author-content-item.essayPage.single {
-    /* 确保背景图设置正确 */
+    /* 重置背景设置，确保动画能控制背景位置 */
     background: url(https://youpai.hanvon.top/blog/FnL/2022_12_01.jpg) center center / cover no-repeat !important;
     
-    /* 先测试明显动画 */
-    animation: headerBackgroundAnimationTest 8s ease-in-out infinite;
+    /* 应用摆动动画 */
+    animation: mobileBackgroundSway 18s ease-in-out infinite;
     
-    /* 如果明显动画有效，再换成温和动画 */
-    /* animation: headerBackgroundAnimation 15s ease-in-out infinite; */
+    /* 确保背景可以移动 */
+    background-attachment: scroll !important;
+    background-repeat: no-repeat !important;
+  }
+}
+
+/* 针对小屏幕手机的优化 */
+@media (max-width: 480px) {
+  .author-content.author-content-item.essayPage.single {
+    animation: mobileBackgroundSway 15s ease-in-out infinite;
   }
 }
