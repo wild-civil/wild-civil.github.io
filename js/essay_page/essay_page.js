@@ -562,6 +562,7 @@ var essayManager = {
         li.className = 'bber-item';
         li.setAttribute('data-index', index);
 
+        // ========== 图片处理部分 ==========
         let imagesHtml = '';
         if (item.image) {
             if (item.image.length === 1) {
@@ -588,6 +589,7 @@ var essayManager = {
             }
         }
 
+        // ========== 音乐播放器处理部分 ==========
         let musicHtml = '';
         if (item.aplayer) {
             musicHtml = `
@@ -606,6 +608,7 @@ var essayManager = {
             `;
         }
 
+        // ========== B站视频处理部分 ==========
         let bilibiliHtml = '';
         if (item.bilibili) {
             bilibiliHtml = `
@@ -619,9 +622,35 @@ var essayManager = {
         }
 
         const contentText = item.content.replace(/<br\s*\/?>/gi, '');
-        // 使用新的日期格式化方法，传递原始日期字符串
-        const formattedDate = this.formatLocalDate(item.date);
+        
+        // ========== 智能日期处理部分 ==========
+        // 这是最重要的修改部分！
+        let dateDisplay;
+        
+        // 情况1：如果日期是中文（包含"年"、"月"、"日"等中文字符）
+        if (typeof item.date === 'string' && /[年月日]/.test(item.date)) {
+            // 直接使用原始的中文日期文字，不做任何处理
+            dateDisplay = item.date;
+            console.log('📅 检测到中文日期，直接显示:', dateDisplay);
+        }
+        // 情况2：如果有结束日期（date_end字段）
+        else if (item.date_end) {
+            // 处理日期范围，格式化为：2024/11/09-10
+            const startDate = this.formatLocalDate(item.date);
+            const endDate = this.formatLocalDate(item.date_end);
+            // 提取结束日期的最后一部分（日）
+            const endDay = endDate.split('/').pop();
+            dateDisplay = `${startDate}-${endDay}`;
+            console.log('📅 检测到日期范围，显示为:', dateDisplay);
+        }
+        // 情况3：普通的标准日期格式
+        else {
+            // 使用原有的日期格式化逻辑
+            dateDisplay = this.formatLocalDate(item.date);
+            console.log('📅 标准日期格式，显示为:', dateDisplay);
+        }
 
+        // ========== 生成HTML内容 ==========
         li.innerHTML = `
             <div class="bber-content">
                 <p class="datacont">${item.content}</p>
@@ -634,7 +663,8 @@ var essayManager = {
                 <div class="bber-info">
                     <div class="bber-info-time">
                         <i class="far fa-clock"></i>
-                        <time class="datatime" datetime="${item.date}">${formattedDate}</time>
+                        <!-- 注意：这里使用 dateDisplay 而不是原来的 formattedDate -->
+                        <time class="datatime" datetime="${item.date}">${dateDisplay}</time>
                     </div>
                     ${item.link ? `
                         <a class="bber-content-link" target="_blank" title="跳转到短文指引的链接" href="${item.link}" rel="external nofollow">
@@ -663,8 +693,14 @@ var essayManager = {
         return li;
     },
 
-    // 日期格式化方法 - 智能显示
+    // ========== 日期格式化方法 - 智能显示 ==========
+    // 这个方法是用来处理标准日期格式的，中文日期不会进入这里
     formatLocalDate: function(dateStr) {
+        // 先检查是不是中文日期，如果是就直接返回（安全检查）
+        if (typeof dateStr === 'string' && /[年月日]/.test(dateStr)) {
+            return dateStr;
+        }
+        
         // 解析日期字符串
         const date = new Date(dateStr);
         const now = new Date();
