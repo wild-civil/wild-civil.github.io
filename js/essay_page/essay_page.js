@@ -43,9 +43,22 @@ var essayManager = {
         setTimeout(() => {
             this.setupEventListeners();
             this.restoreState();
-            this.ensureDataAndInit(); // 使用新的数据检查方法
+            // 从URL读取page参数，优先于sessionStorage
+            var urlParams = new URLSearchParams(window.location.search);
+            var pageFromURL = parseInt(urlParams.get('page'));
+            if (pageFromURL && pageFromURL >= 1) {
+                this.currentPage = pageFromURL;
+            }
+            // 替换初始history state，使浏览器返回按钮能正确回到上一页
+            try {
+                history.replaceState({
+                    essayPage: this.currentPage,
+                    essayPrivatePage: this.privateCurrentPage,
+                    privateUnlocked: this.privateUnlocked
+                }, '', window.location);
+            } catch (e) {}
+            this.ensureDataAndInit();
             this.initPrivateZoneModal();
-            this.setupHistoryListener();
         }, 300);
     },
 
@@ -137,26 +150,10 @@ var essayManager = {
             console.log(`✅ 成功加载 ${this.allEssays.length} 条短文`);
             this.renderPagination();
             this.renderCurrentPage();
-            
-            // 初始化历史记录状态（使用replaceState，不添加新条目）
-            // 这样从主页面进入essay页面后，返回按钮会回到主页面
-            this.initHistoryState();
         } else {
             console.error('❌ Essay data not found');
             this.showDataError(); // 使用新的错误处理方法
         }
-    },
-
-    // 初始化历史记录状态（不修改URL）
-    initHistoryState: function() {
-        // 使用replaceState替换当前状态，不添加新的历史记录
-        // 这样第一个翻页操作才会创建第一条翻页历史
-        history.replaceState({
-            essayHistory: true,
-            publicPage: this.currentPage,
-            privateUnlocked: this.privateUnlocked,
-            privatePage: this.privateCurrentPage
-        }, '', window.location.href);
     },
 
     // 加载个人短文数据
@@ -291,7 +288,7 @@ var essayManager = {
     },
 
     // 个人区分页方法
-    goToPrivatePage: function(page, fromPopstate = false) {
+    goToPrivatePage: function(page) {
         if (page < 1 || page > Math.ceil(this.allPrivateEssays.length / this.privateItemsPerPage)) {
             return;
         }
@@ -304,15 +301,21 @@ var essayManager = {
         this.renderPrivatePagination();
         this.renderPrivateCurrentPage();
         
+        // 将翻页记录到浏览器历史中
+        try {
+            history.pushState({
+                essayPage: this.currentPage,
+                essayPrivatePage: page,
+                privateUnlocked: this.privateUnlocked
+            }, '', window.location);
+        } catch (e) {
+            console.warn('History pushState failed:', e);
+        }
+        
         // 滚动到顶部
         setTimeout(() => {
             this.safeScrollToElement('bber', -100);
         }, 200);
-
-        // 如果不是从popstate事件触发的，添加历史记录
-        if (!fromPopstate) {
-            this.pushHistoryState();
-        }
     },
 
     prevPrivatePage: function() {
@@ -544,51 +547,6 @@ var essayManager = {
                 this.initWaterfall();
             }, 200);
         }, 300);
-    },
-
-    // 推送历史记录状态（不修改URL，避免服务器问题）
-    pushHistoryState: function() {
-        // 使用history.pushState存储状态但不修改URL
-        // 这样可以避免服务器配置问题导致的404
-        history.pushState({
-            essayHistory: true,
-            publicPage: this.currentPage,
-            privateUnlocked: this.privateUnlocked,
-            privatePage: this.privateCurrentPage
-        }, '', window.location.href);
-    },
-
-    setupHistoryListener: function() {
-        window.addEventListener('popstate', (event) => {
-            // 检查当前URL路径，确保我们在正确的页面上
-            const currentPath = window.location.pathname;
-            const isEssayPage = currentPath.includes('/essay/') || currentPath.endsWith('/essay');
-            
-            if (!isEssayPage) {
-                // 如果不在essay页面，不处理历史记录
-                return;
-            }
-            
-            // 从event.state中恢复状态（不依赖URL）
-            if (event.state && event.state.essayHistory) {
-                this.currentPage = event.state.publicPage || 1;
-                this.privateUnlocked = event.state.privateUnlocked || false;
-                this.privateCurrentPage = event.state.privatePage || 1;
-                
-                // 更新UI（使用fromPopstate=true避免重复添加历史记录）
-                this.renderPagination();
-                this.goToPage(this.currentPage, true);
-                
-                if (this.privateUnlocked) {
-                    this.unlockPrivateZone();
-                    this.goToPrivatePage(this.privateCurrentPage, true);
-                } else {
-                    this.lockPrivateZone();
-                }
-                
-                this.saveState();
-            }
-        });
     },
 
     flattenEssayData: function(essayData) {
@@ -906,7 +864,7 @@ var essayManager = {
         return document.querySelector('#essay-pagination .pagination');
     },
 
-    goToPage: function(page, fromPopstate = false) {
+    goToPage: function(page) {
         if (page < 1 || page > Math.ceil(this.allEssays.length / this.itemsPerPage)) {
             return;
         }
@@ -919,15 +877,27 @@ var essayManager = {
         this.renderPagination();
         this.renderCurrentPage();
         
+        // 将翻页记录到浏览器历史中，支持返回/前进按钮
+        try {
+            var url = new URL(window.location);
+            if (page > 1) {
+                url.searchParams.set('page', page);
+            } else {
+                url.searchParams.delete('page');
+            }
+            history.pushState({
+                essayPage: page,
+                essayPrivatePage: this.privateCurrentPage,
+                privateUnlocked: this.privateUnlocked
+            }, '', url);
+        } catch (e) {
+            console.warn('History pushState failed:', e);
+        }
+        
         // 安全滚动到顶部（仅在用户未主动滚动时）
         setTimeout(() => {
             this.safeScrollToElement('bber', -100);
         }, 200);
-
-        // 如果不是从popstate事件触发的，添加历史记录
-        if (!fromPopstate) {
-            this.pushHistoryState();
-        }
     },
 
     prevPage: function() {
@@ -1064,6 +1034,48 @@ var essayManager = {
                 this.initWaterfall();
             }, 300);
         }, { passive: true });
+
+        // 监听浏览器前进/后退按钮，恢复翻页状态（防止PJAX重复注册）
+        if (this._popstateBound) {
+            window.removeEventListener('popstate', this._popstateBound);
+        }
+        var self = this;
+        this._popstateBound = function(e) {
+            if (!self.isEssayPage()) return;
+            
+            if (e.state) {
+                // 恢复个人区解锁状态（优先处理，会影响其他状态）
+                if (e.state.privateUnlocked !== undefined && e.state.privateUnlocked !== self.privateUnlocked) {
+                    self.privateUnlocked = e.state.privateUnlocked;
+                    if (self.privateUnlocked) {
+                        if (e.state.essayPrivatePage !== undefined) {
+                            self.privateCurrentPage = e.state.essayPrivatePage;
+                        }
+                        self.unlockPrivateZone();
+                    } else {
+                        self.lockPrivateZone();
+                    }
+                    self.saveState();
+                }
+                
+                // 恢复公开区页码
+                if (e.state.essayPage !== undefined && e.state.essayPage !== self.currentPage) {
+                    self.currentPage = e.state.essayPage;
+                    self.saveState();
+                    self.renderPagination();
+                    self.renderCurrentPage();
+                }
+                
+                // 恢复个人区页码（仅在已解锁时）
+                if (e.state.essayPrivatePage !== undefined && e.state.essayPrivatePage !== self.privateCurrentPage && self.privateUnlocked) {
+                    self.privateCurrentPage = e.state.essayPrivatePage;
+                    self.saveState();
+                    self.renderPrivatePagination();
+                    self.renderPrivateCurrentPage();
+                }
+            }
+        };
+        window.addEventListener('popstate', this._popstateBound);
     },
 
     commentText: function(txt) {
