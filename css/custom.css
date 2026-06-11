@@ -160,3 +160,9 @@ main.layout#content-inner {
   color: white !important;
 }
 
+
+/* ----------------------------------  图标字体 -------------------------------------   */
+.fontawesomeIcon {
+  font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Solid', sans-serif !important;
+  font-weight: 900 !important;
+}

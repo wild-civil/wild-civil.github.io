@@ -14,6 +14,12 @@ var essayManager = {
     dataLoadRetries: 0,
     maxRetries: 5,
 
+    // 新增：滚动锁定机制 - 防止用户滚动时自动跳回顶部
+    isUserScrolling: false,
+    scrollLockTimer: null,
+    lastScrollTime: 0,
+    isButtonClick: false, // 标记是否是按钮点击触发的操作
+
     init: function() {
         // 只在essay页面初始化
         if (!this.isEssayPage()) {
@@ -63,6 +69,50 @@ var essayManager = {
         return window.essayData && Array.isArray(window.essayData) && window.essayData.length > 0;
     },
 
+    // 新增：滚动锁定检查 - 判断是否应该执行自动滚动
+    shouldScroll: function() {
+        // 如果是按钮点击触发的操作，允许滚动
+        if (this.isButtonClick) {
+            this.isButtonClick = false; // 重置标记
+            return true;
+        }
+        
+        const now = Date.now();
+        // 如果用户正在滚动（2秒内有滚动操作），则不执行自动滚动
+        if (now - this.lastScrollTime < 2000) {
+            console.log('🔒 用户正在滚动，跳过自动滚动');
+            return false;
+        }
+        return true;
+    },
+
+    // 新增：记录用户滚动时间
+    recordScrollTime: function() {
+        this.lastScrollTime = Date.now();
+    },
+
+    // 新增：安全滚动到指定位置（仅在用户未滚动时执行）
+    safeScrollTo: function(targetTop, behavior = 'smooth') {
+        if (!this.shouldScroll()) {
+            return;
+        }
+        window.scrollTo({ top: targetTop, behavior: behavior });
+    },
+
+    // 新增：安全滚动到元素位置
+    safeScrollToElement: function(elementId, offset = 0) {
+        if (!this.shouldScroll()) {
+            return;
+        }
+        const element = document.getElementById(elementId);
+        if (element) {
+            window.scrollTo({ 
+                top: element.offsetTop + offset, 
+                behavior: 'smooth' 
+            });
+        }
+    },
+
     // 新增：数据错误处理
     showDataError: function() {
         const tips = document.getElementById('bber-tips');
@@ -87,10 +137,36 @@ var essayManager = {
             console.log(`✅ 成功加载 ${this.allEssays.length} 条短文`);
             this.renderPagination();
             this.renderCurrentPage();
+            
+            // 初始化历史记录状态（使用replaceState，不添加新条目）
+            // 这样从主页面进入essay页面后，返回按钮会回到主页面
+            this.initHistoryState();
         } else {
             console.error('❌ Essay data not found');
             this.showDataError(); // 使用新的错误处理方法
         }
+    },
+
+    // 初始化历史记录状态（使用hash模式，避免服务器404）
+    initHistoryState: function() {
+        // 构建hash参数
+        const params = new URLSearchParams();
+        params.set('publicPage', this.currentPage);
+        
+        if (this.privateUnlocked) {
+            params.set('private', '1');
+            params.set('privatePage', this.privateCurrentPage);
+        }
+        
+        const hashStr = params.toString();
+        
+        // 使用replaceState替换当前状态，不添加新的历史记录
+        // 这样第一个翻页操作才会创建第一条翻页历史
+        history.replaceState({
+            publicPage: this.currentPage,
+            privateUnlocked: this.privateUnlocked,
+            privatePage: this.privateCurrentPage
+        }, '', '#' + hashStr);
     },
 
     // 加载个人短文数据
@@ -225,15 +301,28 @@ var essayManager = {
     },
 
     // 个人区分页方法
-    goToPrivatePage: function(page) {
+    goToPrivatePage: function(page, fromPopstate = false) {
         if (page < 1 || page > Math.ceil(this.allPrivateEssays.length / this.privateItemsPerPage)) {
             return;
         }
+
+        // 标记是按钮点击操作，允许自动滚动
+        this.isButtonClick = true;
 
         this.privateCurrentPage = page;
         this.saveState();
         this.renderPrivatePagination();
         this.renderPrivateCurrentPage();
+        
+        // 滚动到顶部
+        setTimeout(() => {
+            this.safeScrollToElement('bber', -100);
+        }, 200);
+
+        // 如果不是从popstate事件触发的，添加历史记录
+        if (!fromPopstate) {
+            this.pushHistoryState();
+        }
     },
 
     prevPrivatePage: function() {
@@ -414,7 +503,9 @@ var essayManager = {
             }
             
             // 滚动到顶部
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            //window.scrollTo({ top: 0, behavior: 'smooth' });
+            // 安全滚动到顶部（仅在用户未主动滚动时）
+            this.safeScrollTo(0);
         }, 300);
     },
 
@@ -465,7 +556,28 @@ var essayManager = {
         }, 300);
     },
 
-    // 设置历史记录监听
+    // 推送历史记录状态（使用hash模式，避免服务器404）
+    pushHistoryState: function() {
+        // 构建hash参数（使用hash不会触发服务器请求）
+        const params = new URLSearchParams();
+        params.set('publicPage', this.currentPage);
+        
+        if (this.privateUnlocked) {
+            params.set('private', '1');
+            params.set('privatePage', this.privateCurrentPage);
+        }
+        
+        // 使用hash模式：/essay#publicPage=2&private=1&privatePage=3
+        const hashStr = params.toString();
+        
+        // 添加历史记录
+        history.pushState({
+            publicPage: this.currentPage,
+            privateUnlocked: this.privateUnlocked,
+            privatePage: this.privateCurrentPage
+        }, '', '#' + hashStr);
+    },
+
     setupHistoryListener: function() {
         window.addEventListener('popstate', (event) => {
             // 检查当前URL路径，确保我们在正确的页面上
@@ -477,22 +589,23 @@ var essayManager = {
                 return;
             }
             
-            // 从URL参数恢复状态
-            const urlParams = new URLSearchParams(window.location.search);
-            const publicPage = parseInt(urlParams.get('publicPage')) || 1;
-            const privateParam = urlParams.get('private');
-            const privatePage = parseInt(urlParams.get('privatePage')) || 1;
+            // 从hash中恢复状态（避免服务器404）
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const publicPage = parseInt(hashParams.get('publicPage')) || 1;
+            const privateParam = hashParams.get('private');
+            const privatePage = parseInt(hashParams.get('privatePage')) || 1;
             
             this.currentPage = publicPage;
             this.privateUnlocked = privateParam === '1';
             this.privateCurrentPage = privatePage;
             
-            // 更新UI
+            // 更新UI（使用fromPopstate=true避免重复添加历史记录）
             this.renderPagination();
-            this.renderCurrentPage();
+            this.goToPage(this.currentPage, true);
             
             if (this.privateUnlocked) {
                 this.unlockPrivateZone();
+                this.goToPrivatePage(this.privateCurrentPage, true);
             } else {
                 this.lockPrivateZone();
             }
@@ -816,26 +929,28 @@ var essayManager = {
         return document.querySelector('#essay-pagination .pagination');
     },
 
-    goToPage: function(page) {
+    goToPage: function(page, fromPopstate = false) {
         if (page < 1 || page > Math.ceil(this.allEssays.length / this.itemsPerPage)) {
             return;
         }
 
+        // 标记是按钮点击操作，允许自动滚动
+        this.isButtonClick = true;
+        
         this.currentPage = page;
         this.saveState();
         this.renderPagination();
         this.renderCurrentPage();
         
-        // 滚动到顶部
+        // 安全滚动到顶部（仅在用户未主动滚动时）
         setTimeout(() => {
-            const bberElement = document.getElementById('bber');
-            if (bberElement) {
-                window.scrollTo({
-                    top: bberElement.offsetTop - 100,
-                    behavior: 'smooth'
-                });
-            }
+            this.safeScrollToElement('bber', -100);
         }, 200);
+
+        // 如果不是从popstate事件触发的，添加历史记录
+        if (!fromPopstate) {
+            this.pushHistoryState();
+        }
     },
 
     prevPage: function() {
@@ -909,18 +1024,34 @@ var essayManager = {
 
     restoreState: function() {
         try {
-            // 从sessionStorage恢复
-            const savedPage = parseInt(sessionStorage.getItem('essayCurrentPage'));
-            if (savedPage && !isNaN(savedPage)) {
-                this.currentPage = savedPage;
+            // 优先从URL hash中恢复状态（这样刷新页面时也能保持页码）
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const hashPage = parseInt(hashParams.get('publicPage'));
+            const hashPrivate = hashParams.get('private');
+            const hashPrivatePage = parseInt(hashParams.get('privatePage'));
+            
+            // 如果hash中有参数，优先使用hash中的值
+            if (hashPage && !isNaN(hashPage)) {
+                this.currentPage = hashPage;
+            } else {
+                // 否则从sessionStorage恢复
+                const savedPage = parseInt(sessionStorage.getItem('essayCurrentPage'));
+                if (savedPage && !isNaN(savedPage)) {
+                    this.currentPage = savedPage;
+                }
             }
             
-            const savedUnlocked = sessionStorage.getItem('essayPrivateUnlocked');
-            if (savedUnlocked === 'true') {
+            const hasHashPrivate = hashPrivate === '1';
+            if (hasHashPrivate || sessionStorage.getItem('essayPrivateUnlocked') === 'true') {
                 this.privateUnlocked = true;
-                const savedPrivatePage = parseInt(sessionStorage.getItem('essayPrivateCurrentPage'));
-                if (savedPrivatePage && !isNaN(savedPrivatePage)) {
-                    this.privateCurrentPage = savedPrivatePage;
+                
+                if (hashPrivatePage && !isNaN(hashPrivatePage)) {
+                    this.privateCurrentPage = hashPrivatePage;
+                } else {
+                    const savedPrivatePage = parseInt(sessionStorage.getItem('essayPrivateCurrentPage'));
+                    if (savedPrivatePage && !isNaN(savedPrivatePage)) {
+                        this.privateCurrentPage = savedPrivatePage;
+                    }
                 }
                 // 恢复时也要正确显示/隐藏区域
                 this.unlockPrivateZone();
@@ -957,6 +1088,21 @@ var essayManager = {
                 this.initWaterfall();
             }, 250);
         });
+
+        // 新增：检测用户滚动行为，防止自动滚动干扰
+        let scrollTimer;
+        window.addEventListener('scroll', () => {
+            // 记录用户滚动时间
+            this.recordScrollTime();
+            
+            // 清除之前的滚动定时器（防止瀑布流频繁重算）
+            clearTimeout(scrollTimer);
+            
+            // 滚动停止后300ms再重新计算瀑布流
+            scrollTimer = setTimeout(() => {
+                this.initWaterfall();
+            }, 300);
+        }, { passive: true });
     },
 
     commentText: function(txt) {

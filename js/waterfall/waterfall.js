@@ -5,6 +5,10 @@ function waterfall(container) {
     
     if (!container) return;
 
+    // 记录当前滚动位置，防止布局后滚动跳动
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
     // 重置所有子元素
     const items = Array.from(container.children);
     items.forEach(item => {
@@ -103,6 +107,9 @@ function waterfall(container) {
     const tallestColumn = columns[0];
     container.style.height = toPx(getBottom(tallestColumn) + getMargin('Bottom', tallestColumn));
 
+    // 恢复滚动位置，防止布局计算导致滚动跳动
+    window.scrollTo(scrollLeft, scrollTop);
+
     // 响应式处理
     let resizeTimer;
     function handleResize() {
@@ -112,8 +119,9 @@ function waterfall(container) {
         }, 250);
     }
 
+    // 使用 passive 事件监听器，优化移动端滚动性能
     if (window.addEventListener) {
-        window.addEventListener('resize', handleResize);
+        window.addEventListener('resize', handleResize, { passive: true });
     } else {
         window.onresize = handleResize;
     }
