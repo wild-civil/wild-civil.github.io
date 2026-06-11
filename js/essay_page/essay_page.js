@@ -43,6 +43,14 @@ var essayManager = {
         setTimeout(() => {
             this.setupEventListeners();
             this.restoreState();
+            // 从hash读取页码（优先于sessionStorage）
+            var hashMatch = location.hash.match(/^#p(\d+)$/);
+            if (hashMatch) {
+                var hashPage = parseInt(hashMatch[1]);
+                if (hashPage >= 1) {
+                    this.currentPage = hashPage;
+                }
+            }
             this.ensureDataAndInit();
             this.initPrivateZoneModal();
         }, 300);
@@ -287,16 +295,8 @@ var essayManager = {
         this.renderPrivatePagination();
         this.renderPrivateCurrentPage();
         
-        // 将翻页记录到浏览器历史中
-        try {
-            history.pushState({
-                essayPage: this.currentPage,
-                essayPrivatePage: page,
-                privateUnlocked: this.privateUnlocked
-            }, '');
-        } catch (e) {
-            console.warn('History pushState failed:', e);
-        }
+        // 将翻页记录到URL hash，不与PJAX冲突
+        location.hash = '#pv' + page;
         
         // 滚动到顶部
         setTimeout(() => {
@@ -863,15 +863,11 @@ var essayManager = {
         this.renderPagination();
         this.renderCurrentPage();
         
-        // 将翻页记录到浏览器历史中，支持返回/前进按钮
-        try {
-            history.pushState({
-                essayPage: page,
-                essayPrivatePage: this.privateCurrentPage,
-                privateUnlocked: this.privateUnlocked
-            }, '');
-        } catch (e) {
-            console.warn('History pushState failed:', e);
+        // 将翻页记录到URL hash，不与PJAX冲突
+        if (page > 1) {
+            location.hash = '#p' + page;
+        } else if (location.hash.indexOf('#p') === 0) {
+            history.replaceState(null, '', location.pathname + location.search);
         }
         
         // 安全滚动到顶部（仅在用户未主动滚动时）
@@ -1015,47 +1011,41 @@ var essayManager = {
             }, 300);
         }, { passive: true });
 
-        // 监听浏览器前进/后退按钮，恢复翻页状态（防止PJAX重复注册）
-        if (this._popstateBound) {
-            window.removeEventListener('popstate', this._popstateBound);
-        }
+        // 监听hash变化（翻页通过hash记录，不与PJAX冲突）
         var self = this;
-        this._popstateBound = function(e) {
+        this._hashHandler = function() {
             if (!self.isEssayPage()) return;
             
-            if (e.state) {
-                // 恢复个人区解锁状态（优先处理，会影响其他状态）
-                if (e.state.privateUnlocked !== undefined && e.state.privateUnlocked !== self.privateUnlocked) {
-                    self.privateUnlocked = e.state.privateUnlocked;
-                    if (self.privateUnlocked) {
-                        if (e.state.essayPrivatePage !== undefined) {
-                            self.privateCurrentPage = e.state.essayPrivatePage;
-                        }
-                        self.unlockPrivateZone();
-                    } else {
-                        self.lockPrivateZone();
-                    }
-                    self.saveState();
-                }
-                
-                // 恢复公开区页码
-                if (e.state.essayPage !== undefined && e.state.essayPage !== self.currentPage) {
-                    self.currentPage = e.state.essayPage;
+            var hash = location.hash;
+            var publicMatch = hash.match(/^#p(\d+)$/);
+            var privateMatch = hash.match(/^#pv(\d+)$/);
+            
+            if (publicMatch) {
+                var page = parseInt(publicMatch[1]);
+                if (page !== self.currentPage) {
+                    self.currentPage = page;
                     self.saveState();
                     self.renderPagination();
                     self.renderCurrentPage();
                 }
-                
-                // 恢复个人区页码（仅在已解锁时）
-                if (e.state.essayPrivatePage !== undefined && e.state.essayPrivatePage !== self.privateCurrentPage && self.privateUnlocked) {
-                    self.privateCurrentPage = e.state.essayPrivatePage;
+            } else if (privateMatch && self.privateUnlocked) {
+                var pvPage = parseInt(privateMatch[1]);
+                if (pvPage !== self.privateCurrentPage) {
+                    self.privateCurrentPage = pvPage;
                     self.saveState();
                     self.renderPrivatePagination();
                     self.renderPrivateCurrentPage();
                 }
+            } else if (hash === '' || hash === '#') {
+                if (self.currentPage !== 1) {
+                    self.currentPage = 1;
+                    self.saveState();
+                    self.renderPagination();
+                    self.renderCurrentPage();
+                }
             }
         };
-        window.addEventListener('popstate', this._popstateBound);
+        window.addEventListener('hashchange', this._hashHandler);
     },
 
     commentText: function(txt) {
