@@ -1021,6 +1021,10 @@ var essayManager = {
             var privateMatch = hash.match(/^#pv(\d+)$/);
             
             if (publicMatch) {
+                // 从个人区切换到公开区
+                if (self.privateUnlocked) {
+                    self.lockPrivateZone();
+                }
                 var page = parseInt(publicMatch[1]);
                 if (page !== self.currentPage) {
                     self.currentPage = page;
@@ -1028,7 +1032,9 @@ var essayManager = {
                     self.renderPagination();
                     self.renderCurrentPage();
                 }
-            } else if (privateMatch && self.privateUnlocked) {
+            } else if (privateMatch) {
+                // 仅已解锁时处理个人区hash
+                if (!self.privateUnlocked) return;
                 var pvPage = parseInt(privateMatch[1]);
                 if (pvPage !== self.privateCurrentPage) {
                     self.privateCurrentPage = pvPage;
@@ -1037,6 +1043,10 @@ var essayManager = {
                     self.renderPrivateCurrentPage();
                 }
             } else if (hash === '' || hash === '#') {
+                // 回到公开区第1页
+                if (self.privateUnlocked) {
+                    self.lockPrivateZone();
+                }
                 if (self.currentPage !== 1) {
                     self.currentPage = 1;
                     self.saveState();
@@ -1045,7 +1055,7 @@ var essayManager = {
                 }
             }
         };
-        window.addEventListener('hashchange', this._hashHandler);
+        window.addEventListener('hashchange', this._hashHandler);hHandler);
     },
 
     commentText: function(txt) {
