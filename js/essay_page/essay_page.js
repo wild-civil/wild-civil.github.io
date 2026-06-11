@@ -147,26 +147,16 @@ var essayManager = {
         }
     },
 
-    // 初始化历史记录状态（使用hash模式，避免服务器404）
+    // 初始化历史记录状态（不修改URL）
     initHistoryState: function() {
-        // 构建hash参数
-        const params = new URLSearchParams();
-        params.set('publicPage', this.currentPage);
-        
-        if (this.privateUnlocked) {
-            params.set('private', '1');
-            params.set('privatePage', this.privateCurrentPage);
-        }
-        
-        const hashStr = params.toString();
-        
         // 使用replaceState替换当前状态，不添加新的历史记录
         // 这样第一个翻页操作才会创建第一条翻页历史
         history.replaceState({
+            essayHistory: true,
             publicPage: this.currentPage,
             privateUnlocked: this.privateUnlocked,
             privatePage: this.privateCurrentPage
-        }, '', '#' + hashStr);
+        }, '', window.location.href);
     },
 
     // 加载个人短文数据
@@ -556,26 +546,16 @@ var essayManager = {
         }, 300);
     },
 
-    // 推送历史记录状态（使用hash模式，避免服务器404）
+    // 推送历史记录状态（不修改URL，避免服务器问题）
     pushHistoryState: function() {
-        // 构建hash参数（使用hash不会触发服务器请求）
-        const params = new URLSearchParams();
-        params.set('publicPage', this.currentPage);
-        
-        if (this.privateUnlocked) {
-            params.set('private', '1');
-            params.set('privatePage', this.privateCurrentPage);
-        }
-        
-        // 使用hash模式：/essay#publicPage=2&private=1&privatePage=3
-        const hashStr = params.toString();
-        
-        // 添加历史记录
+        // 使用history.pushState存储状态但不修改URL
+        // 这样可以避免服务器配置问题导致的404
         history.pushState({
+            essayHistory: true,
             publicPage: this.currentPage,
             privateUnlocked: this.privateUnlocked,
             privatePage: this.privateCurrentPage
-        }, '', '#' + hashStr);
+        }, '', window.location.href);
     },
 
     setupHistoryListener: function() {
@@ -589,28 +569,25 @@ var essayManager = {
                 return;
             }
             
-            // 从hash中恢复状态（避免服务器404）
-            const hashParams = new URLSearchParams(window.location.hash.substring(1));
-            const publicPage = parseInt(hashParams.get('publicPage')) || 1;
-            const privateParam = hashParams.get('private');
-            const privatePage = parseInt(hashParams.get('privatePage')) || 1;
-            
-            this.currentPage = publicPage;
-            this.privateUnlocked = privateParam === '1';
-            this.privateCurrentPage = privatePage;
-            
-            // 更新UI（使用fromPopstate=true避免重复添加历史记录）
-            this.renderPagination();
-            this.goToPage(this.currentPage, true);
-            
-            if (this.privateUnlocked) {
-                this.unlockPrivateZone();
-                this.goToPrivatePage(this.privateCurrentPage, true);
-            } else {
-                this.lockPrivateZone();
+            // 从event.state中恢复状态（不依赖URL）
+            if (event.state && event.state.essayHistory) {
+                this.currentPage = event.state.publicPage || 1;
+                this.privateUnlocked = event.state.privateUnlocked || false;
+                this.privateCurrentPage = event.state.privatePage || 1;
+                
+                // 更新UI（使用fromPopstate=true避免重复添加历史记录）
+                this.renderPagination();
+                this.goToPage(this.currentPage, true);
+                
+                if (this.privateUnlocked) {
+                    this.unlockPrivateZone();
+                    this.goToPrivatePage(this.privateCurrentPage, true);
+                } else {
+                    this.lockPrivateZone();
+                }
+                
+                this.saveState();
             }
-            
-            this.saveState();
         });
     },
 
@@ -1024,34 +1001,18 @@ var essayManager = {
 
     restoreState: function() {
         try {
-            // 优先从URL hash中恢复状态（这样刷新页面时也能保持页码）
-            const hashParams = new URLSearchParams(window.location.hash.substring(1));
-            const hashPage = parseInt(hashParams.get('publicPage'));
-            const hashPrivate = hashParams.get('private');
-            const hashPrivatePage = parseInt(hashParams.get('privatePage'));
-            
-            // 如果hash中有参数，优先使用hash中的值
-            if (hashPage && !isNaN(hashPage)) {
-                this.currentPage = hashPage;
-            } else {
-                // 否则从sessionStorage恢复
-                const savedPage = parseInt(sessionStorage.getItem('essayCurrentPage'));
-                if (savedPage && !isNaN(savedPage)) {
-                    this.currentPage = savedPage;
-                }
+            // 从sessionStorage恢复状态
+            const savedPage = parseInt(sessionStorage.getItem('essayCurrentPage'));
+            if (savedPage && !isNaN(savedPage)) {
+                this.currentPage = savedPage;
             }
             
-            const hasHashPrivate = hashPrivate === '1';
-            if (hasHashPrivate || sessionStorage.getItem('essayPrivateUnlocked') === 'true') {
+            const savedUnlocked = sessionStorage.getItem('essayPrivateUnlocked');
+            if (savedUnlocked === 'true') {
                 this.privateUnlocked = true;
-                
-                if (hashPrivatePage && !isNaN(hashPrivatePage)) {
-                    this.privateCurrentPage = hashPrivatePage;
-                } else {
-                    const savedPrivatePage = parseInt(sessionStorage.getItem('essayPrivateCurrentPage'));
-                    if (savedPrivatePage && !isNaN(savedPrivatePage)) {
-                        this.privateCurrentPage = savedPrivatePage;
-                    }
+                const savedPrivatePage = parseInt(sessionStorage.getItem('essayPrivateCurrentPage'));
+                if (savedPrivatePage && !isNaN(savedPrivatePage)) {
+                    this.privateCurrentPage = savedPrivatePage;
                 }
                 // 恢复时也要正确显示/隐藏区域
                 this.unlockPrivateZone();
