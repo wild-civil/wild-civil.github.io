@@ -1055,7 +1055,7 @@ var essayManager = {
                 }
             }
         };
-        window.addEventListener('hashchange', this._hashHandler);hHandler);
+        window.addEventListener('hashchange', this._hashHandler);
     },
 
     commentText: function(txt) {
