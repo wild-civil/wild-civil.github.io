@@ -43,20 +43,6 @@ var essayManager = {
         setTimeout(() => {
             this.setupEventListeners();
             this.restoreState();
-            // 从URL读取page参数，优先于sessionStorage
-            var urlParams = new URLSearchParams(window.location.search);
-            var pageFromURL = parseInt(urlParams.get('page'));
-            if (pageFromURL && pageFromURL >= 1) {
-                this.currentPage = pageFromURL;
-            }
-            // 替换初始history state，使浏览器返回按钮能正确回到上一页
-            try {
-                history.replaceState({
-                    essayPage: this.currentPage,
-                    essayPrivatePage: this.privateCurrentPage,
-                    privateUnlocked: this.privateUnlocked
-                }, '', window.location);
-            } catch (e) {}
             this.ensureDataAndInit();
             this.initPrivateZoneModal();
         }, 300);
@@ -307,7 +293,7 @@ var essayManager = {
                 essayPage: this.currentPage,
                 essayPrivatePage: page,
                 privateUnlocked: this.privateUnlocked
-            }, '', window.location);
+            }, '');
         } catch (e) {
             console.warn('History pushState failed:', e);
         }
@@ -879,17 +865,11 @@ var essayManager = {
         
         // 将翻页记录到浏览器历史中，支持返回/前进按钮
         try {
-            var url = new URL(window.location);
-            if (page > 1) {
-                url.searchParams.set('page', page);
-            } else {
-                url.searchParams.delete('page');
-            }
             history.pushState({
                 essayPage: page,
                 essayPrivatePage: this.privateCurrentPage,
                 privateUnlocked: this.privateUnlocked
-            }, '', url);
+            }, '');
         } catch (e) {
             console.warn('History pushState failed:', e);
         }
